@@ -24,7 +24,7 @@ feR::media(data_$AGE)
 feR::media(data_, "AGE", by = "SEX", show.interpretation =T, show.global = F)
 feR::media(data_, "AGE", by = "HEALTH", show.interpretation =T, show.global = F)
 feR::comp.media(data_, "AGE", by = "SEX", show.interpretation =T, show.global = F)
-feR::comp.media(data_, "AGE", by = "HEALTH", show.interpretation =T, show.global = F)
+feR::comp.media(data_, "AGE", by = "HEALTH", show.interpretation =T, show.global = F, show.desc = T)
 
 PRUEBAS.UDAIC.MEDIA = FALSE
 if (PRUEBAS.UDAIC.MEDIA){
