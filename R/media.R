@@ -228,10 +228,15 @@ print.feR.media <- function(x) {
     p.norm.exact = shapiro.test(x)$p.value
     nor.test = "SW"
   }
-  else {
+  else if (n.valid > 4) {
     p.norm.exact = nortest::lillie.test(x)$p.value
     nor.test = "Lillie (KS)"
+  } else {
+    p.norm.exact = ks.test(x, "pnorm")$p.value
+    nor.test = "KS"
   }
+
+
   is.normal = p.norm.exact > p.value
   small.p <- 10^((decimals+1)*-1)
   if(p.norm.exact <= small.p) p.norm <- paste0(" <",small.p)

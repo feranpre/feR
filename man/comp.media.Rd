@@ -27,7 +27,11 @@ comp.media(
   show.interpretation = TRUE,
   lang = "es",
   show.global = TRUE,
-  show.desc = TRUE
+  show.desc = TRUE,
+  show.p.exact = FALSE,
+  sig.p = 0.05,
+  sig.p.2 = 0.01,
+  small.p = 0.001
 )
 }
 \arguments{
