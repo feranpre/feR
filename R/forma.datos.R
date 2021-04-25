@@ -43,6 +43,7 @@ forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {
       if (DEBUG) cat("\n[forma.datos] data.frame","\n")
       if (!exists("RAW.DATA")) RAW.DATA <- p
       else {
+        if (DEBUG) cat("\n[forma.datos] data.frame -> RAW.DATA exists","\n")
         if (nrow(RAW.DATA) == nrow(p)) RAW.DATA <- cbind(RAW.DATA, p)
         else print("ERROR")
       }
@@ -63,17 +64,29 @@ forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {
         # cant be data, must be vars names
 
         if (DEBUG) cat("\n[forma.datos] len >= 1\n")
-        vars <- intersect(p,names(RAW.DATA))
+        if (exists("RAW.DATA")) {
+          vars <- intersect(p,names(RAW.DATA))
 
-        if(length(vars) != length(p)) cat("\n[forma.datos] WARNING\n")
-        if(!exists("TEMP.DATA")) {
-          TEMP.DATA <- as.data.frame(RAW.DATA[,p])
-          names(TEMP.DATA) <- p
-        }
-        else {
-          names.temp.data <- names(TEMP.DATA)
-          TEMP.DATA <- cbind(TEMP.DATA, RAW.DATA[,p])
-          names(TEMP.DATA) <- c(names.temp.data, p)
+          if(length(vars) != length(p)) warning(paste("[forma.datos] Data variables has/ve been specified but was/were not found in the data:", p))
+          if(!exists("TEMP.DATA")) {
+            TEMP.DATA <- as.data.frame(RAW.DATA[,p])
+            names(TEMP.DATA) <- p
+          }
+          else {
+            names.temp.data <- names(TEMP.DATA)
+            TEMP.DATA <- cbind(TEMP.DATA, RAW.DATA[,p])
+            names(TEMP.DATA) <- c(names.temp.data, p)
+          }
+
+        } else {
+          # this should be a variable but no data.frame was loaded so far
+          # i should check for data.frame regarding of place in the call
+          # and THEN check for vars
+          #
+          # -- FORM RAW.DATA and after that FORM temp.data
+          #
+          # I leave this note here for now
+          if (DEBUG) cat("\n[forma.datos] Variable name was given but no data.frame was detected\n")
         }
       }
     }
@@ -84,6 +97,13 @@ forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {
   #=================================================================== FORMING BY -> DATA.FRAME
   if (!missing("by")) {
     if (DEBUG) cat("\n[forma.datos] BY present\n")
+    # if (length(by) == max.length) {
+    #   if(DEBUG)  cat("\n[forma.datos] BY must be data\n")
+    #   BY.DATA <- by
+    # }
+    # else {
+    #
+    # }
     for(p in by) {
       #----------------------------------------- BY parameter IS a data.frame
       if (is.data.frame(p)) {
@@ -151,14 +171,14 @@ forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {
 
   if (exists("BY.DATA")) {
     RESULT.DATA <- cbind(TEMP.DATA, BY.DATA)
-    class(RESULT.DATA) <- append("udaic.DATA",class(RESULT.DATA))
+    class(RESULT.DATA) <- append("feR.DATA",class(RESULT.DATA))
     attr(RESULT.DATA, "DATA") <- TEMP.DATA
     attr(RESULT.DATA, "HAS.BY") <- TRUE
     attr(RESULT.DATA, "BY.DATA") <- BY.DATA
   }
   else {
     RESULT.DATA <- TEMP.DATA
-    class(RESULT.DATA) <- append("udaic.DATA",class(RESULT.DATA))
+    class(RESULT.DATA) <- append("feR.DATA",class(RESULT.DATA))
     attr(RESULT.DATA, "DATA") <- TEMP.DATA
     attr(RESULT.DATA, "HAS.BY") <- FALSE
   }

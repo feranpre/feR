@@ -40,7 +40,7 @@ comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
   library("nortest", quietly = TRUE) #for lillie.test
   library("car", quietly = TRUE)     #for leveneTest
 
-  FORMA.DATOS <- forma.datos(..., by = by, DEBUG = FALSE, DEBUG.CALL = FALSE)
+  FORMA.DATOS <- feR:::forma.datos(..., by = by, DEBUG = FALSE, DEBUG.CALL = FALSE)
   HAS.BY <- attr(FORMA.DATOS, "HAS.BY")
   DATOS <- attr(FORMA.DATOS, "DATA")
   desc.media <- feR::media(..., by=by,
@@ -207,7 +207,7 @@ comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
     attr(result.comp.final, "SHOW.DESC") <- show.desc
     if (show.desc) {
       if (exists("desc.media")) attr(result.comp.final, "RESULT.DESC") <- desc.media
-      else attr(result.comp.final, "DESC") <- "Not Available"
+      else attr(result.comp.final, "RESULT.DESC") <- "Not Available"
     }
     return(result.comp.final)
   }
@@ -232,7 +232,7 @@ print.feR.comp.media <- function(x) {
   interp <- attr(x, "INTERPRETATION")
 
   if (show.interpretation) cat("\n",interp,"\n")
-  if (show.desc & !is.null(res.desc)) print(knitr::kable(res.desc))
+  if (show.desc & !is.null(res.desc)) print(res.desc)
   if (exists("res.comp") & !is.null(res.comp)) print(knitr::kable(res.comp))
   if (exists("res.post.hoc") & !is.null(res.post.hoc)) print(knitr::kable(res.post.hoc))
 }
