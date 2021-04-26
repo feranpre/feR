@@ -189,6 +189,33 @@ comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
             result.comp <- data.frame(var = var, by = by.var,
                                       test = "Kruskal-Wallis",
                                       stat = comp.m$statistic, p.value = comp.p)
+
+
+            gh <- PMCMRplus::kwAllPairsConoverTest(var.values ~ by.values)
+            # gh <- kwAllPairsDunnTest(formula, data= data)
+            for(x in dimnames(gh$p.value)[[1]]){
+              for(y in dimnames(gh$p.value)[[2]]){
+                if(x==y) next
+                temp.group <- paste(x,"-",y)
+                temp.p.value <- gh$p.value[x,y]
+                temp.stat.value <- round(gh$statistic[x,y], digits = decimals)
+
+                temp.res <- data.frame(levene.p = NA, stat.value = temp.stat.value, mean.diff = NA, ci.low = NA, ci.up = NA, p.value = temp.p.value)
+                rownames(temp.res) <- temp.group
+                if(!exists("result.post.hoc")) result.post.hoc <- temp.res
+                else result.post.hoc <- rbind(result.post.hoc, temp.res)
+              }
+            }
+
+
+            # print(result)
+            # result <- cbind(levene.p = c(rep(NA,nrow(result))), result)
+            result <- cbind(categories = rownames(result), result)
+            result$p.value <- ifelse(result$p.value < small.p, paste("<", small.p), round(result$p.value, digits = decimals+1))
+            result <- rbind(c("Kruskal-Wallis", NA, chi.value, NA, NA, NA, p.text), result)
+            result$method <- c("Conover Test", rep(NA, nrow(result)-1))
+            rownames(result) <- NULL
+
           }
           else if (total.levels < 2) {
             cat("\n[comp.media] nnNot enough levels in factor variable: ", by.var)
@@ -223,7 +250,7 @@ comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
 #' @export
 #'
 #' @examples
-print.feR.comp.media <- function(x) {
+print.feR.comp.mean <- function(x) {
   res.desc <- attr(x,"RESULT.DESC")
   res.comp <- attr(x,"RESULT.COMP")
   res.post.hoc <- attr(x, "RESULT.POST_HOC")

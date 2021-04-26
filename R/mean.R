@@ -35,10 +35,13 @@ medias <- function(...,by=NULL,decimals=2,
                   show.IRQ=TRUE,show.p.norm=TRUE,show.p.norm.exact=FALSE,
                   show.nor.test=TRUE,show.is.normal=TRUE,
                   show.interpretation=FALSE,lang="es",show.global=TRUE,
-                  p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, comp=FALSE){
+                  p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, comp=FALSE,
+                 show.post.hoc = TRUE,
+                 show.desc=TRUE){
 
   library("dplyr", quietly = TRUE)
   library("nortest", quietly = TRUE)
+  library("PMCMRplus", quietly = TRUE)
 
   FORMA.DATOS <- forma.datos(..., by = by, DEBUG = DEBUG.FORMA, DEBUG.CALL = DEBUG.CALL)
   HAS.BY <- attr(FORMA.DATOS, "HAS.BY")
@@ -51,6 +54,7 @@ medias <- function(...,by=NULL,decimals=2,
   # print(FORMA.DATOS)DATOS
   if (!HAS.BY | show.global == TRUE) {
     for(var in names(DATOS)) {
+      if (DEBUG) cat("\n[media] VAR:",var,"\n")
       var.values <- DATOS %>% pull(var)
       temp.mean <- .feR.mean(var.values, var,decimals = decimals)
       if (is.data.frame(temp.mean)){
@@ -139,10 +143,13 @@ medias <- function(...,by=NULL,decimals=2,
     if(comp) {
       if(exists("result.comp")) {
         result.final = result.comp
+        # attr(result.final,"RESULT.POST.HOC") attr(result.comp,"RESULT.POST.HOC")
       }
       else {
         result.final <- "No comparison result has been found"
       }
+      attr(result.final, "SHOW.POST.HOC") <- show.post.hoc
+      attr(result.final, "SHOW.DESCRIPTIVES") <- show.desc
       attr(result.final, "RESULT.DESCRIPTIVES") <- result.temp
       attr(result.final, "INTERPRETATION") <- "No interpretation yet"
       class(result.final) <- append("feR.comp.media", class(result.comp))
@@ -170,10 +177,39 @@ print.feR.mean <- function(x) {
   show.interpretation <- attr(x,"SHOW.INTERPRETATION")
   interp <- attr(x, "INTERPRETATION")
 
+  if (is.null(show.interpretation)) show.interpretation = FALSE
   if (show.interpretation) cat("\n",interp,"\n")
   if (exists("res.global") & !is.null(res.global)) print(knitr::kable(res.global))
   if (exists("res.grupo") & !is.null(res.grupo)) print(knitr::kable(res.grupo))
 
+}
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.feR.comp.media <- function(x) {
+  show.desc <- attr(x,"SHOW.DESCRIPTIVES")
+  if(show.desc) res.desc <- attr(x,"RESULT.DESCRIPTIVES")
+
+  res.comp <- attr(x, "RESULT.COMP")
+  show.post.hoc <- attr(x, "SHOW.POST.HOC")
+  show.interpretation <- attr(x,"SHOW.INTERPRETATION")
+  interp <- attr(x, "INTERPRETATION")
+  res.post.hoc <- attr(x, "RESULT.POST.HOC")
+
+  if (show.interpretation) cat("\n",interp,"\n")
+  if (show.desc) {
+    attr(res.desc, "SHOW.INTERPRETATION") <- FALSE
+    print(res.desc)
+  }
+
+  print(knitr::kable(x, row.names = FALSE))
+  if (show.post.hoc & !is.null(res.post.hoc)) print(knitr::kable(res.post.hoc, row.names = FALSE))
 }
 
 .help.desc.mean <- function(x, lang="es", code = ""){
@@ -304,7 +340,7 @@ print.feR.mean <- function(x) {
 
         result.post.hoc$p.value <- ifelse(result.post.hoc$`p adj` < p.sig.very.small, paste("<", p.sig.very.small), post.hoc.p.value)
         result.post.hoc$p.exact <- post.hoc.p.value
-        result.post.hoc$p.symbols[post.hoc.p.value>= p.sig] <- "-"
+        result.post.hoc$p.symbols[post.hoc.p.value>= p.sig] <- ""
         result.post.hoc$p.symbols[post.hoc.p.value< p.sig] <- "*"
         result.post.hoc$p.symbols[post.hoc.p.value< p.sig.small] <- "**"
         result.post.hoc$p.symbols[post.hoc.p.value< p.sig.very.small] <- "***"
@@ -353,7 +389,7 @@ print.feR.mean <- function(x) {
       }
     }
     else if (total.levels < 2) {
-      cat("\n[comp.media] Not enough levels in factor variable: ", by.var)
+      cat("\n[.feR.comp.mean] Not enough levels in factor variable: ", by.var)
     }
   } else {
     if (total.levels == 2) {
@@ -380,12 +416,46 @@ print.feR.mean <- function(x) {
                                 stat = comp.m$statistic,
                                 p.value = comp.p,
                                 p.exact = comp.m.p.value)
+
+
+      gh <- PMCMRplus::kwAllPairsConoverTest(x.values ~ by.values)
+      # gh <- kwAllPairsDunnTest(formula, data= data)
+      for(x in dimnames(gh$p.value)[[1]]){
+        for(y in dimnames(gh$p.value)[[2]]){
+          if(x==y) next
+          temp.group <- paste(x,"-",y)
+          temp.p.value <- gh$p.value[x,y]
+          temp.stat.value <- round(gh$statistic[x,y], digits = decimals)
+
+          temp.res <- data.frame(stat.value = temp.stat.value, p.value = temp.p.value)
+          rownames(temp.res) <- temp.group
+          if(!exists("result.post.hoc")) result.post.hoc <- temp.res
+          else result.post.hoc <- rbind(result.post.hoc, temp.res)
+        }
+      }
+      empty.fill <- rep(" ", nrow(result.post.hoc)-1)
+      result.post.hoc$p.exact = result.post.hoc$p.value
+
+      result.post.hoc$p.symbols[result.post.hoc$p.value >= p.sig] <- ""
+      result.post.hoc$p.symbols[result.post.hoc$p.value < p.sig] <- "*"
+      result.post.hoc$p.symbols[result.post.hoc$p.value < p.sig.small] <- "**"
+      result.post.hoc$p.symbols[result.post.hoc$p.value < p.sig.very.small] <- "***"
+      result.post.hoc$group.pairs <- rownames(result.post.hoc)
+
+      result.post.hoc$p.value <- ifelse(result.post.hoc$p.value < p.sig.very.small, paste("<", p.sig.very.small), result.post.hoc$p.value)
+      result.post.hoc$post.hoc <- c("Conover test", empty.fill )
+      result.post.hoc$var <- c(x.name, empty.fill)
+      result.post.hoc$by <-  c(by.name, empty.fill)
+      result.post.hoc <- result.post.hoc[,c("var","by","group.pairs","p.value","p.symbols","post.hoc")]
+      rownames(result.post.hoc) <- NULL
+
+
     }
     else if (total.levels < 2) {
-      cat("\n[comp.media] nnNot enough levels in factor variable: ", by.var)
+      cat("\n[.feR.comp.mean] Not enough levels in factor variable: ", by.var)
     }
   }
-
+  # result.comp <- attr(result.comp, "COMP") <- result.comp
   if (exists("result.post.hoc")) attr(result.comp,"RESULT.POST.HOC") <- result.post.hoc
   return(result.comp)
 }
@@ -401,12 +471,23 @@ print.feR.mean <- function(x) {
 
   n.valid = length(x) - sum(is.na(x))
   n.missing = sum(is.na(x))
-  min = min(x, na.rm = TRUE)
-  max = max(x, na.rm = TRUE)
-  mean = round(mean(x, na.rm = TRUE), digits = decimals)
-  sd = round(sd(x, na.rm = TRUE), digits = decimals)
-  median = median(x, na.rm = TRUE)
-  IQR = IQR(x, na.rm = TRUE)
+  if (n.valid > 0) {
+    min = min(x, na.rm = TRUE)
+    max = max(x, na.rm = TRUE)
+    mean = round(mean(x, na.rm = TRUE), digits = decimals)
+    sd = round(sd(x, na.rm = TRUE), digits = decimals)
+    median = median(x, na.rm = TRUE)
+    IQR = IQR(x, na.rm = TRUE)
+  } else {
+    min = NA
+    max = NA
+    mean = NA
+    sd = NA
+    median = NA
+    IQR = NA
+  }
+
+  nor.test.error = FALSE
   if (n.valid > 3 & n.valid < 5000) {
     p.norm.exact = shapiro.test(x)$p.value
     nor.test = "SW"
@@ -414,16 +495,22 @@ print.feR.mean <- function(x) {
   else if (n.valid > 4) {
     p.norm.exact = nortest::lillie.test(x)$p.value
     nor.test = "Lillie (KS)"
-  } else {
+  } else if (n.valid > 0) {
     p.norm.exact = ks.test(x, "pnorm")$p.value
     nor.test = "KS"
+  } else {
+    p.norm.exact = NA
+    nor.test = "Cant be done"
+    nor.test.error =TRUE
   }
 
 
-  is.normal = p.norm.exact > p.sig
+  if (!nor.test.error) is.normal = p.norm.exact > p.sig
+  else is.normal = FALSE
 
-  if(p.norm.exact <= p.sig.very.small) p.norm <- paste0(" <",p.sig.very.small)
+  if( (p.norm.exact <= p.sig.very.small) & !nor.test.error)  p.norm <- paste0(" <",p.sig.very.small)
   else p.norm <- round(p.norm.exact, digits = decimals+1)
+
   result <- data.frame("n.valid" = n.valid,
                        "n.missing" = n.missing,
                        "min" = min,

@@ -19,17 +19,37 @@ forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {
   if (DEBUG.CALL){
     cat("\n ------------------- CALL ----------------------- \n")
     print(CALL_DETAILS)
+    cat("\n ------------------- UNNAMED PARAMETERS ----------------------- \n")
+    print(CALL_DETAILS.UNNAMED)
+    cat("\n ------------------- NAMED PARAMETERS ----------------------- \n")
+    print(parametros)
     cat("\n ------------------------------------------------ \n")
   }
 
   # TEMP.DATA <- data.frame()
   max.length = 0
-  for(p in parametros) {
+  cont = 0
+  temp.parametros <- parametros
+  # names(temp.parametros) <- names(parametros)
+  parametros <- list()
+  # print(paste("PARAMETROS ",names(temp.parametros)))
+  for(p in temp.parametros) {
+    cont = cont + 1
+    if (DEBUG.CALL) cat("\n Parametro:",is.null(names(temp.parametros)[cont])," -- clase:", class(p),"\n")
+    if (is.null(names(temp.parametros)[cont])) {
+      parametros[[length(parametros) + 1]] <- p
+    }
 
     if (is.data.frame(p)) temp.length = nrow(p)
     else temp.length = length(p)
     if (temp.length > max.length) max.length <- temp.length
   }
+  if (DEBUG.CALL){
+    cat("\n ------------------- NAMED PARAMETERS - FINAL ----------------------- \n")
+    print(parametros)
+    cat("\n ------------------------------------------------ \n")
+  }
+
   # p.lengths <- lapply(parametros, length)
   # max.length= max(unlist(p.lengths))
   if(DEBUG) cat("\n\n[forma.datos] max.lengt:", max.length,"\n")
