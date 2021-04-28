@@ -37,7 +37,7 @@ medias <- function(...,by=NULL,decimals=2,
                   show.interpretation=FALSE,lang="es",show.global=TRUE,
                   p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, comp=FALSE,
                  show.post.hoc = TRUE,
-                 show.desc=TRUE){
+                 show.desc=TRUE, paired = T){
 
   library("dplyr", quietly = TRUE)
   library("nortest", quietly = TRUE)
@@ -93,7 +93,7 @@ medias <- function(...,by=NULL,decimals=2,
 
         if(comp == TRUE) {
           is.normal = all(temp.result.group$is.normal)
-          temp.comp <- .feR.comp.mean(var.values, var, by.values, by, decimals = decimals,
+          temp.comp <- .feR.comp.mean.unpaired(var.values, var, by.values, by, decimals = decimals,
                                       p.sig = p.sig, p.sig.small = p.sig.small, p.sig.very.small = p.sig.very.small, is.normal = is.normal)
           if(!exists("result.comp")) result.comp <- temp.comp
           else result.comp <- rbind(result.comp, temp.comp)
@@ -277,9 +277,22 @@ print.feR.comp.media <- function(x) {
 }
 
 
-.feR.comp.mean <- function(x.values, x.name, by.values, by.name, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, is.normal = TRUE) {
+.feR.comp.mean.paired <- function(x.values, x.name, by.values, by.name, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, is.normal = TRUE) {
 
-  total.levels <- length(levels(as.factor(by.values)))
+  if(!is.numeric(by.values)) by.values <- as.numeric(by.values)
+
+  if(is.normal){
+
+  } else {
+
+  }
+
+}
+
+.feR.comp.mean.unpaired <- function(x.values, x.name, by.values, by.name, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, is.normal = TRUE) {
+
+  total.levels <- length(levels(factor(by.values)))
+
 
 
   if(is.normal) {
@@ -389,7 +402,7 @@ print.feR.comp.media <- function(x) {
       }
     }
     else if (total.levels < 2) {
-      cat("\n[.feR.comp.mean] Not enough levels in factor variable: ", by.var)
+      cat("\n[.feR.comp.mean] Not enough levels in factor variable: ", by.name)
     }
   } else {
     if (total.levels == 2) {
@@ -399,7 +412,8 @@ print.feR.comp.media <- function(x) {
 
 
       comp.p <- ifelse(comp.m$p.value < p.sig.very.small, paste0("<",p.sig.very.small), comp.m.p.value)
-      result.comp <- data.frame(var = var, by = by.var,
+      result.comp <- data.frame(var = x.name, by = by.name,
+                                group.pairs = paste(levels(by.values)[1],levels(by.values)[2], sep = " - "),
                                 test = "Wilcoxon-Mann-Whitney",
                                 stat = comp.m$statistic,
                                 p.value = comp.p,
@@ -452,7 +466,7 @@ print.feR.comp.media <- function(x) {
 
     }
     else if (total.levels < 2) {
-      cat("\n[.feR.comp.mean] Not enough levels in factor variable: ", by.var)
+      cat("\n[.feR.comp.mean] Not enough levels in factor variable: ", by.name)
     }
   }
   # result.comp <- attr(result.comp, "COMP") <- result.comp
@@ -469,8 +483,9 @@ print.feR.comp.media <- function(x) {
     return(NA)
   }
 
-  n.valid = length(x) - sum(is.na(x))
   n.missing = sum(is.na(x))
+  n.valid = length(x) - n.missing
+
   if (n.valid > 0) {
     min = min(x, na.rm = TRUE)
     max = max(x, na.rm = TRUE)
@@ -487,29 +502,9 @@ print.feR.comp.media <- function(x) {
     IQR = NA
   }
 
-  nor.test.error = FALSE
-  if (n.valid > 3 & n.valid < 5000) {
-    p.norm.exact = shapiro.test(x)$p.value
-    nor.test = "SW"
-  }
-  else if (n.valid > 4) {
-    p.norm.exact = nortest::lillie.test(x)$p.value
-    nor.test = "Lillie (KS)"
-  } else if (n.valid > 0) {
-    p.norm.exact = ks.test(x, "pnorm")$p.value
-    nor.test = "KS"
-  } else {
-    p.norm.exact = NA
-    nor.test = "Cant be done"
-    nor.test.error =TRUE
-  }
+  x.normal = feR::.normal(x, n.valid=n.valid)
 
 
-  if (!nor.test.error) is.normal = p.norm.exact > p.sig
-  else is.normal = FALSE
-
-  if( (p.norm.exact <= p.sig.very.small) & !nor.test.error)  p.norm <- paste0(" <",p.sig.very.small)
-  else p.norm <- round(p.norm.exact, digits = decimals+1)
 
   result <- data.frame("n.valid" = n.valid,
                        "n.missing" = n.missing,
@@ -519,13 +514,55 @@ print.feR.comp.media <- function(x) {
                        "sd" = sd,
                        "median" = median,
                        "IQR" = IQR,
-                       "p.norm" = p.norm,
-                       "p.norm.exact" = p.norm.exact,
-                       "nor.test" = nor.test,
-                       "is.normal" =  is.normal)
+                       "p.norm" = x.normal$p.value,
+                       "p.norm.exact" = x.normal$p.exact.value,
+                       "nor.test" = x.normal$test,
+                       "is.normal" =  x.normal$is.normal)
   class(result) <- append("udaic",class(result))
 
   return(result)
 }
 
 
+.normal <- function(x, n.valid = NULL, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001) {
+
+  if (is.null(n.valid)) n.valid = length(x) - sum(is.na(x))
+
+  nor.test.error = FALSE
+  if (n.valid > 3 & n.valid < 5000) {
+    norm = shapiro.test(x)
+    nor.test = "SW"
+  }
+  else if (n.valid > 4) {
+    norm = nortest::lillie.test(x)
+    nor.test = "Lillie (KS)"
+  } else if (n.valid > 0) {
+    norm = ks.test(x, "pnorm")
+    nor.test = "KS"
+  } else {
+    p.norm.exact = NA
+    norm.stat = NA
+    nor.test = "Cant be done"
+    nor.test.error =TRUE
+  }
+
+  if(!nor.test.error) {
+    p.norm.exact = norm$p.value
+    norm.stat = norm$statistic
+  }
+
+  if (!nor.test.error) is.normal = p.norm.exact > p.sig
+  else is.normal = FALSE
+  is.normal <- data.frame(is.normal = is.normal)
+  is.normal$p.exact.value = p.norm.exact
+  is.normal$test = nor.test
+  is.normal$statistic = norm.stat
+
+  if( (p.norm.exact <= p.sig.very.small) & !nor.test.error)  p.norm <- paste0(" <",p.sig.very.small)
+  else p.norm <- round(p.norm.exact, digits = decimals+1)
+
+  is.normal$p.value <- p.norm
+
+  class(is.normal) = append("feR.normality", class(is.normal))
+  return(is.normal)
+}
