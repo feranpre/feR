@@ -26,13 +26,15 @@ medias(
   show.p.norm.exact = FALSE,
   show.nor.test = TRUE,
   show.is.normal = TRUE,
-  show.interpretation = TRUE,
+  show.interpretation = FALSE,
   lang = "es",
   show.global = TRUE,
   p.sig = 0.05,
   p.sig.small = 0.01,
   p.sig.very.small = 0.001,
-  comp = FALSE
+  comp = FALSE,
+  show.post.hoc = TRUE,
+  show.desc = TRUE
 )
 }
 \arguments{
