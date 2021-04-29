@@ -8,7 +8,6 @@
 #' @param DEBUG.CALL
 #'
 #' @return
-#' @export
 #'
 #' @examples
 forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {

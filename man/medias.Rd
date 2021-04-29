@@ -34,7 +34,8 @@ medias(
   p.sig.very.small = 0.001,
   comp = FALSE,
   show.post.hoc = TRUE,
-  show.desc = TRUE
+  show.desc = TRUE,
+  paired = T
 )
 }
 \arguments{

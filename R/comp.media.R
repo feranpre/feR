@@ -24,7 +24,6 @@
 #' @param show.global			      default value: TRUE
 #'
 #' @return
-#' @export
 #'
 #' @examples
 comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
