@@ -26,7 +26,7 @@
 #' @return
 #'
 #' @examples
-comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
+old.comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
                   show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                   show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
                   show.mean=TRUE,show.sd=TRUE,show.median=TRUE,
