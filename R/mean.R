@@ -1,3 +1,40 @@
+#' comp.media
+#'
+#' @param ...
+#' @param by                    default value: NULL
+#' @param decimals              default value: 2
+#' @param DEBUG                 default value: FALSE
+#' @param DEBUG.FORMA           default value: FALSE
+#' @param DEBUG.CALL            default value: FALSE
+#' @param show.vars             default value: TRUE
+#' @param show.by               default value: TRUE
+#' @param show.groups           default value: TRUE
+#' @param show.n.valid          default value: TRUE
+#' @param show.n.missing        default value: TRUE
+#' @param show.min              default value: TRUE
+#' @param show.max              default value: TRUE
+#' @param show.mean             default value: TRUE
+#' @param show.sd               default value: TRUE
+#' @param show.median           default value: TRUE
+#' @param show.IRQ              default value: TRUE
+#' @param show.se               default value: TRUE
+#' @param show.ci.upper         default value: TRUE
+#' @param show.ci.lower         default value: TRUE
+#' @param show.p.norm           default value: TRUE
+#' @param show.p.norm.exact     default value: FALSE
+#' @param show.nor.test         default value: TRUE
+#' @param show.is.normal        default value: TRUE
+#' @param show.interpretation   default value: FALSE
+#' @param lang                  default value: "es"
+#' @param show.global           default value: TRUE
+#' @param p.sig                 default value: 0.05
+#' @param p.sig.small           default value: 0.01
+#' @param p.sig.very.small      default value: 0.001
+#' @param ci                    default value: 0.95
+#' @param show.post.hoc         default value: TRUE
+#' @param show.desc             default value: TRUE
+#' @param paired                default value: TRU
+#'
 #'
 #' @return
 #' @export
@@ -8,47 +45,54 @@ comp.media <- function(...,by=NULL,decimals=2,
                        show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                        show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
                        show.mean=TRUE,show.sd=TRUE,show.median=TRUE,
-                       show.IRQ=TRUE,show.p.norm=TRUE,show.p.norm.exact=FALSE,
+                       show.IRQ=TRUE, show.se = TRUE, show.ci.upper = TRUE, show.ci.lower = TRUE,
+                       show.p.norm=TRUE,show.p.norm.exact=FALSE,
                        show.nor.test=TRUE,show.is.normal=TRUE,
                        show.interpretation=FALSE,lang="es",show.global=TRUE,
                        p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
+                       ci = 0.95,
                        show.post.hoc = TRUE,
                        show.desc=TRUE, paired = T) {
 
 
-    medias(..., by = by,
-        decimals = decimals,
-        DEBUG = DEBUG,
-        DEBUG.FORMA = DEBUG.FORMA,
-        DEBUG.CALL = DEBUG.CALL,
-        show.vars = show.vars,
-        show.by = show.by,
-        show.groups = show.groups,
-        show.n.valid = show.n.valid,
-        show.n.missing = show.n.missing,
-        show.min = show.min,
-        show.max = show.max,
-        show.mean = show.mean,
-        show.sd = show.sd,
-        show.median = show.median,
-        show.IRQ = show.IRQ,
-        show.p.norm = show.p.norm,
-        show.p.norm.exact = show.p.norm.exact,
-        show.nor.test = show.nor.test,
-        show.is.normal = show.is.normal,
-        show.interpretation = show.interpretation,
-        lang = lang,
-        show.global = show.global,
-        p.sig.05 = p.sig,
-        p.sig.small.01 = p.sig.small,
-        p.sig.very.small.001 = p.sig.very.small,
-        comp = TRUE,
-        show.post.hoc = show.post.hoc,
-        show.desc = show.desc,
-        paired = paired)
+    medias(...,
+           by=by,
+           decimals=decimals,
+           DEBUG=DEBUG,
+           DEBUG.FORMA=DEBUG.FORMA,
+           DEBUG.CALL=DEBUG.CALL,
+           show.vars=show.vars,
+           show.by=show.by,
+           show.groups=show.groups,
+           show.n.valid=show.n.valid,
+           show.n.missing=show.n.missing,
+           show.min=show.min,
+           show.max=show.max,
+           show.mean=show.mean,
+           show.sd=show.sd,
+           show.median=show.median,
+           show.IRQ=show.IRQ,
+           show.se=show.se,
+           show.ci.upper=show.ci.upper,
+           show.ci.lower=show.ci.lower,
+           show.p.norm=show.p.norm,
+           show.p.norm.exact=show.p.norm.exact,
+           show.nor.test=show.nor.test,
+           show.is.normal=show.is.normal,
+           show.interpretation=show.interpretation,
+           lang=lang,
+           show.global=show.global,
+           p.sig=p.sig,
+           p.sig.small=p.sig.small,
+           p.sig.very.small=p.sig.very.small,
+           ci=ci,
+           comp=TRUE,
+           show.post.hoc=show.post.hoc,
+           show.desc=show.desc,
+           paired=paired)
 }
 
-#' Title
+#' medias
 #'
 #' @param ...                   data/variables to work with
 #' @param by					          default value: NULL
@@ -65,6 +109,9 @@ comp.media <- function(...,by=NULL,decimals=2,
 #' @param show.sd				        default value: TRUE
 #' @param show.median			      default value: TRUE
 #' @param show.IRQ				      default value: TRUE
+#' @param show.se 				      default value: FALSE
+#' @param show.ci.upper		      default value: FALSE
+#' @param show.ci.lower		      default value: FALSE
 #' @param show.p.norm			      default value: TRUE
 #' @param show.p.norm.exact		  default value: FALSE
 #' @param show.nor.test			    default value: TRUE
@@ -82,10 +129,12 @@ medias <- function(...,by=NULL,decimals=2,
                   show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                   show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
                   show.mean=TRUE,show.sd=TRUE,show.median=TRUE,
-                  show.IRQ=TRUE,show.p.norm=TRUE,show.p.norm.exact=FALSE,
+                  show.IRQ=TRUE, show.se = FALSE, show.ci.upper = FALSE, show.ci.lower = FALSE,
+                  show.p.norm=TRUE,show.p.norm.exact=FALSE,
                   show.nor.test=TRUE,show.is.normal=TRUE,
                   show.interpretation=FALSE,lang="es",show.global=TRUE,
-                  p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, comp=FALSE,
+                  p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
+                 comp=FALSE,
                  show.post.hoc = TRUE,
                  show.desc=TRUE, paired = T){
 
@@ -107,6 +156,7 @@ medias <- function(...,by=NULL,decimals=2,
       if (DEBUG) cat("\n[media] VAR:",var,"\n")
       var.values <- DATOS %>% pull(var)
       temp.mean <- .feR.mean(var.values, var,decimals = decimals)
+      if (is.na(temp.mean)) return(NA)
       if (is.data.frame(temp.mean)){
         if (!HAS.BY) res.global <- cbind(var = var, temp.mean)
         else res.global <- cbind(var = var, by = "-", group = "-", temp.mean)
@@ -133,7 +183,8 @@ medias <- function(...,by=NULL,decimals=2,
         for(by.level in levels(by.values)){
           var.values.groups <- var.values[by.values == by.level]
           temp.mean <- .feR.mean(var.values.groups, var, decimals = decimals,
-                                 p.sig = p.sig, p.sig.small = p.sig.small, p.sig.very.small = p.sig.very.small)
+                                 p.sig = p.sig, p.sig.small = p.sig.small,
+                                 p.sig.very.small = p.sig.very.small, ci = ci)
           if (is.data.frame(temp.mean)){
             res <- cbind(var = var, by = by.var, group = by.level, temp.mean)
             if (!exists("temp.result.group")) temp.result.group <- res
@@ -141,9 +192,11 @@ medias <- function(...,by=NULL,decimals=2,
           }
         }
 
+        if (is.na(temp.result.group)) return(NA)
+
         if(comp == TRUE) {
           is.normal = all(temp.result.group$is.normal)
-          temp.comp <- .feR.comp.mean.unpaired(var.values, var, by.values, by, decimals = decimals,
+          temp.comp <- .feR.comp.mean.unpaired(var.values, var, by.values, by.var, decimals = decimals,
                                       p.sig = p.sig, p.sig.small = p.sig.small, p.sig.very.small = p.sig.very.small, is.normal = is.normal)
           if(!exists("result.comp")) result.comp <- temp.comp
           else result.comp <- rbind(result.comp, temp.comp)
@@ -177,6 +230,9 @@ medias <- function(...,by=NULL,decimals=2,
     if(!show.sd) result.temp$sd <- NULL
     if(!show.median) result.temp$median <- NULL
     if(!show.IRQ) result.temp$IRQ <- NULL
+    if(!show.se) result.temp$se <- NULL
+    if(!show.ci.upper) result.temp$ci.upper <- NULL
+    if(!show.ci.lower) result.temp$ci.lower <- NULL
     if(!show.p.norm) result.temp$p.norm <- NULL
     if(!show.p.norm.exact) result.temp$p.norm.exact <- NULL
     if(!show.nor.test) result.temp$nor.test <- NULL
@@ -341,14 +397,14 @@ print.feR.comp.media <- function(x) {
 
 .feR.comp.mean.unpaired <- function(x.values, x.name, by.values, by.name, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, is.normal = TRUE) {
 
-  total.levels <- length(levels(factor(by.values)))
-
+  if (!is.factor(by.values)) by.values <- factor(by.values)
+  total.levels <- length(levels(by.values))
+  # cat("\n LEVELS BY -->", total.levels)
 
 
   if(is.normal) {
     if (total.levels == 2) {
       comp.m <- t.test(x.values ~ by.values)
-
       comp.m.p.value <- round(comp.m$p.value, digits = decimals)
       if (comp.m.p.value == p.sig ) comp.m.p.value <- round(comp.m$p.value, digits = decimals+1)
 
@@ -525,7 +581,7 @@ print.feR.comp.media <- function(x) {
 }
 
 
-.feR.mean <- function(x, x.name, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001) {
+.feR.mean <- function(x, x.name, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = .95) {
   # require("nortest")
 
   if (!is.numeric(x)) {
@@ -535,6 +591,7 @@ print.feR.comp.media <- function(x) {
 
   n.missing = sum(is.na(x))
   n.valid = length(x) - n.missing
+  x.normal = feR:::.normal(x, n.valid=n.valid)
 
   if (n.valid > 0) {
     min = min(x, na.rm = TRUE)
@@ -543,6 +600,17 @@ print.feR.comp.media <- function(x) {
     sd = round(sd(x, na.rm = TRUE), digits = decimals)
     median = median(x, na.rm = TRUE)
     IQR = IQR(x, na.rm = TRUE)
+    se <- sd(x, na.rm = TRUE)/sqrt(n.valid)
+    alpha_2 <- ci+((1-ci)/2)
+    if(x.normal$is.normal){
+      error <- qnorm(alpha_2)*se
+    } else {
+      error <- qt(alpha_2, df=n.valid -1)*se
+    }
+    ci.upper <- mean + error
+    ci.lower <- mean - error
+
+
   } else {
     min = NA
     max = NA
@@ -550,9 +618,12 @@ print.feR.comp.media <- function(x) {
     sd = NA
     median = NA
     IQR = NA
+    se = NA
+    ci.upper = NA
+    ci.lower = NA
   }
 
-  x.normal = feR:::.normal(x, n.valid=n.valid)
+
 
 
 
@@ -564,6 +635,9 @@ print.feR.comp.media <- function(x) {
                        "sd" = sd,
                        "median" = median,
                        "IQR" = IQR,
+                       "se" = se,
+                       "ci.upper" = ci.upper,
+                       "ci.lower" = ci.lower,
                        "p.norm" = x.normal$p.value,
                        "p.norm.exact" = x.normal$p.exact.value,
                        "nor.test" = x.normal$test,

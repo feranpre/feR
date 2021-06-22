@@ -123,52 +123,80 @@ forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {
     # else {
     #
     # }
-    for(p in by) {
-      #----------------------------------------- BY parameter IS a data.frame
-      if (is.data.frame(p)) {
-        if (DEBUG) cat("\n[forma.datos] by is data.frame","\n")
-        if (!exists("BY.DATA")) BY.DATA <- p
-        else {
-          if (nrow(BY.DATA) == nrow(p)) BY.DATA <- cbind(BY.DATA, p)
-          else print("ERROR")
-        }
-      }
-      #----------------------------------------- BY parameter IS NOT a data.frame
+
+    #----------------------------------------- BY parameter IS a data.frame
+    if (is.data.frame(by)) {
+      if (DEBUG) cat("\n[forma.datos] by is data.frame","\n")
+      if (!exists("BY.DATA")) BY.DATA <- by
       else {
-        if (DEBUG) cat("\n[forma.datos] BY -> CLASS: ", class(p)," P:",p," LENGTH:", length(p),"\n")
-        len.p <- length(p)
-
-        if (len.p == max.length) {
-          # must be data
-          if (DEBUG) cat("\n[forma.datos] BY -> len == max.length\n")
-          if(!exists("BY.DATA")) BY.DATA <- as.data.frame(p)
-          else BY.DATA <- cbind(BY.DATA, p)
-        }
-        else if (len.p >= 1) {
-          # cant be data, must be vars names
-
-          if (DEBUG) cat("\n[forma.datos] BY -> len >= 1\n")
-          vars <- intersect(p,names(RAW.DATA))
-
-          if(length(vars) != length(p)) warning(paste("[forma.datos] by variables has/ve been specified but was/were not found in the data:", p))
-          if (is.null(vars)) {
-            warning(paste("[forma.datos] by variables has/ve been specified but was/were not found:", p))
-          }
+        if (nrow(BY.DATA) == nrow(p)) BY.DATA <- cbind(BY.DATA, by)
+        else print("ERROR")
+      }
+    }
+    #----------------------------------------- BY parameter IS a VECTOR
+    else if (length(by) == max.length){
+      by.var <- sub(".*\\$","",attr(CALL_DETAILS,"LIST.ARGS")$by)
+      # must be data
+      if (DEBUG) cat("\n[forma.datos] by len == max.length\n")
+      if(!exists("BY.DATA")) {
+        BY.DATA <- as.data.frame(by)
+        names(BY.DATA) <-by.var
+      }
+      else {
+        by.names <- names(BY.DATA)
+        BY.DATA <- cbind(BY.DATA, by)
+        names(BY.DATA) <- c(by.names, "SACAR NOMBRE")
+      }
+    }
+    else {
+      for(p in by) {
+        #----------------------------------------- BY parameter IS a data.frame
+        if (is.data.frame(p)) {
+          if (DEBUG) cat("\n[forma.datos] by is data.frame","\n")
+          if (!exists("BY.DATA")) BY.DATA <- p
           else {
-            temp.by.data <- as.data.frame(RAW.DATA[,vars])
+            if (nrow(BY.DATA) == nrow(p)) BY.DATA <- cbind(BY.DATA, p)
+            else print("ERROR")
+          }
+        }
+        #----------------------------------------- BY parameter IS NOT a data.frame
+        else {
+          if (DEBUG) cat("\n[forma.datos] BY -> CLASS: ", class(p)," P:",p," LENGTH:", length(p),"\n")
+          len.p <- length(p)
 
-            if(!exists("BY.DATA")) {
-              BY.DATA <- temp.by.data
-              names(BY.DATA) <- vars
+          if (len.p == max.length) {
+            # must be data
+            if (DEBUG) cat("\n[forma.datos] BY -> len == max.length\n")
+            if(!exists("BY.DATA")) BY.DATA <- as.data.frame(p)
+            else BY.DATA <- cbind(BY.DATA, p)
+          }
+          else if (len.p >= 1) {
+            # cant be data, must be vars names
+
+            if (DEBUG) cat("\n[forma.datos] BY -> len >= 1\n")
+            vars <- intersect(p,names(RAW.DATA))
+
+            if(length(vars) != length(p)) warning(paste("[forma.datos] by variables has/ve been specified but was/were not found in the data:", p))
+            if (is.null(vars)) {
+              warning(paste("[forma.datos] by variables has/ve been specified but was/were not found:", p))
             }
             else {
-              names.temp.data <- names(BY.DATA)
-              BY.DATA <- cbind(BY.DATA, temp.by.data)
-              names(BY.DATA) <- c(names.temp.data, vars)
+              temp.by.data <- as.data.frame(RAW.DATA[,vars])
+
+              if(!exists("BY.DATA")) {
+                BY.DATA <- temp.by.data
+                names(BY.DATA) <- vars
+              }
+              else {
+                names.temp.data <- names(BY.DATA)
+                BY.DATA <- cbind(BY.DATA, temp.by.data)
+                names(BY.DATA) <- c(names.temp.data, vars)
+              }
             }
           }
         }
       }
+
     }
   }
 
@@ -194,6 +222,7 @@ forma.datos <- function(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE) {
     attr(RESULT.DATA, "DATA") <- TEMP.DATA
     attr(RESULT.DATA, "HAS.BY") <- TRUE
     attr(RESULT.DATA, "BY.DATA") <- BY.DATA
+    if (nrow(BY.DATA) != nrow(TEMP.DATA)) cat("\n [forma.datos] ERROR: BY.DATA y TEMP.DATA no tienen el mismo tamaño\n")
   }
   else {
     RESULT.DATA <- TEMP.DATA

@@ -20,15 +20,19 @@ data_$HEALTH <- as.factor(data_$HEALTH)
 
 library(feR)
 
-feR::medias(data_$AGE)
+feR::medias(data_$AGE, decimals = 4)
+feR::medias(data_$SEX, decimals = 4)
+feR::medias(data_$AGE[1:10], by = data_$SEX, decimals = 4)
+feR::medias(data_$HEALTH, by = data_$SEX, decimals = 4)
+
 feR::medias(data_, "AGE", by = "SEX", show.interpretation =T, show.global = F)
 feR::medias(data_, "AGE", by = "HEALTH", show.interpretation =T, show.global = F)
 feR::medias(data_, "AGE", by = "SEX", show.interpretation =T, show.global = F, comp = T)
 feR::medias(data_, "AGE", by = "SEX", show.interpretation =T, show.global = F, comp = T)
 feR::comp.media(data_, "AGE", by = "SEX", DEBUG.FORMA = T, DEBUG.CALL = T)
+feR::comp.media(data_$AGE, by = data_$SEX, DEBUG.FORMA = T, DEBUG.CALL = T)
 
-
-feR:::comp.media(data_, "AGE", by = "HEALTH")
+feR::comp.media(data_, "AGE", by = "HEALTH")
 feR::comp.media(data_, "AGE", by = "HEALTH", show.interpretation =T, show.global = F, show.desc = F)
 feR::comp.media(data_[1:6,], "AGE", by = "HEALTH", show.interpretation =T, show.global = F, show.desc = F)
 
