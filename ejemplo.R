@@ -24,7 +24,7 @@ feR::medias(data_$AGE, decimals = 4)
 feR::medias(data_$SEX, decimals = 4)
 feR::medias(data_$AGE[1:10], by = data_$SEX, decimals = 4)
 feR::medias(data_$HEALTH, by = data_$SEX, decimals = 4)
-# test github token
+# test github token, for real
 
 
 feR::medias(data_, "AGE", by = "SEX", show.interpretation =T, show.global = F)
