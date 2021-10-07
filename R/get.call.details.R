@@ -44,42 +44,43 @@
     # print(paste("NAME: ", arg.name))
     # print(paste("VALUE: ", arg.value))
     #--- if there is a named argument BOTH must be not NA, else there is no =
-    if (is.na(arg.name) | is.na(arg.value)) {
-      #-- if any of them are NA we have a not-named argument
-      # print("ISNA")
-      arg.value <- temp.args[arg.num]
-      arg.name = "UNNAMED"
-      arg.value <- gsub("\"", "", arg.value)
-      #if ther is a vector like c("AGE", "HEIGHT")
+   if(length(arg.name) > 0 & length(arg.value)>0) {
+       if (is.na(arg.name) | is.na(arg.value)) {
+        #-- if any of them are NA we have a not-named argument
+        # print("ISNA")
+        arg.value <- temp.args[arg.num]
+        arg.name = "UNNAMED"
+        arg.value <- gsub("\"", "", arg.value)
+        #if ther is a vector like c("AGE", "HEIGHT")
 
-      if (grepl("c(",arg.value, fixed = TRUE)) {
-        arg.value <- stringr::str_extract(arg.value, '(?<=\\().*(?=\\))')
-        arg.value <- strsplit(arg.value, ",",perl = T)[[1]]
-      }
-      #-- quitamos el simbolo de $ y nos aseguramos de que no se repite el nombre
-      if(length(arg.value)>1) {
-        arg.value.temp <- arg.value
-        arg.value <- NULL
-        for(a in arg.value.temp) {
-          if (grepl("$", a, fixed=TRUE)) {
-            if (exists("arg.value")) arg.value <- c(arg.value, stringr::str_extract(a, '(?<=\\$).*'))
-            else arg.value <- stringr::str_extract(a, '(?<=\\$).*')
-          }
-          else {
-            if (exists("arg.value")) arg.value <- c(arg.value, a)
-            else arg.value <- a
-          }
-
+        if (grepl("c(",arg.value, fixed = TRUE)) {
+          arg.value <- stringr::str_extract(arg.value, '(?<=\\().*(?=\\))')
+          arg.value <- strsplit(arg.value, ",",perl = T)[[1]]
         }
-      }
-      else {
-        if (grepl("$", arg.value, fixed=TRUE)) arg.value <- stringr::str_extract(arg.value, '(?<=\\$).*')
-      }
+        #-- quitamos el simbolo de $ y nos aseguramos de que no se repite el nombre
+        if(length(arg.value)>1) {
+          arg.value.temp <- arg.value
+          arg.value <- NULL
+          for(a in arg.value.temp) {
+            if (grepl("$", a, fixed=TRUE)) {
+              if (exists("arg.value")) arg.value <- c(arg.value, stringr::str_extract(a, '(?<=\\$).*'))
+              else arg.value <- stringr::str_extract(a, '(?<=\\$).*')
+            }
+            else {
+              if (exists("arg.value")) arg.value <- c(arg.value, a)
+              else arg.value <- a
+            }
 
+          }
+        }
+        else {
+          if (grepl("$", arg.value, fixed=TRUE)) arg.value <- stringr::str_extract(arg.value, '(?<=\\$).*')
+        }
+
+      }
+      arg.name <- gsub(" ","",arg.name)
+      arguments.list[[arg.name]] <- c(arguments.list[[arg.name]],gsub(" ","",arg.value))
     }
-    arg.name <- gsub(" ","",arg.name)
-    arguments.list[[arg.name]] <- c(arguments.list[[arg.name]],gsub(" ","",arg.value))
-
   }
   # print(arguments.list)
   # attr(ORIGINAL.CALL,"ORIGINAL.CALL") <- FUNC.NAME

@@ -21,6 +21,10 @@ data_ <- rbind(data_, list(NA,NA,NA,"No","Bad"))
 data_$EMPTY <- rep(NA,nrow(data_))
 data_$HEALTH <- as.factor(data_$HEALTH)
 
+
+mean(data_$AGE)
+is.data.frame(data_$AGE)
+
 library(feR)
 
 feR::medias(data_$AGE, decimals = 4)

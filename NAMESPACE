@@ -2,7 +2,6 @@
 
 S3method(print,feR.comp.mean)
 S3method(print,feR.comp.media)
-S3method(print,feR.mean)
 S3method(print,feR.media)
 export(comp.media)
 export(medias)
