@@ -9,6 +9,7 @@
   ...,
   xname = deparse(substitute(x)),
   by = NULL,
+  byname = deparse(substitute(by)),
   decimals = 2,
   DEBUG = FALSE,
   DEBUG.FORMA = FALSE,
@@ -41,7 +42,8 @@
   comp = FALSE,
   show.post.hoc = TRUE,
   show.desc = TRUE,
-  paired = T
+  paired = T,
+  errors.as.text = FALSE
 )
 }
 \description{

@@ -7,8 +7,9 @@
 \method{means}{numeric}(
   x,
   ...,
-  xname = deparse(substitute(x)),
+  xname = feR:::.var.name(deparse(substitute(x))),
   by = NULL,
+  byname = feR:::.var.name(deparse(substitute(by))),
   decimals = 2,
   DEBUG = FALSE,
   DEBUG.FORMA = FALSE,
@@ -41,7 +42,8 @@
   comp = FALSE,
   show.post.hoc = TRUE,
   show.desc = TRUE,
-  paired = T
+  paired = T,
+  errors.as.text = FALSE
 )
 }
 \description{

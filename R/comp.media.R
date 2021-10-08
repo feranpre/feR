@@ -241,25 +241,25 @@ old.comp.media <- function(...,by=NULL,decimals=2,DEBUG=FALSE,show.vars=TRUE,
 }
 
 
-#' Title
+#' #' Title
+#' #'
+#' #' @param x
+#' #'
+#' #' @return
+#' #' @export
+#' #'
+#' #' @examples
+#' print.feR.comp.mean <- function(x) {
+#'   res.desc <- attr(x,"RESULT.DESC")
+#'   res.comp <- attr(x,"RESULT.COMP")
+#'   res.post.hoc <- attr(x, "RESULT.POST_HOC")
+#'   show.desc <- attr(x,"SHOW.INTERPRETATION")
+#'   show.interpretation <- attr(x,"SHOW.INTERPRETATION")
+#'   interp <- attr(x, "INTERPRETATION")
 #'
-#' @param x
-#'
-#' @return
-#' @export
-#'
-#' @examples
-print.feR.comp.mean <- function(x) {
-  res.desc <- attr(x,"RESULT.DESC")
-  res.comp <- attr(x,"RESULT.COMP")
-  res.post.hoc <- attr(x, "RESULT.POST_HOC")
-  show.desc <- attr(x,"SHOW.INTERPRETATION")
-  show.interpretation <- attr(x,"SHOW.INTERPRETATION")
-  interp <- attr(x, "INTERPRETATION")
-
-  if (show.interpretation) cat("\n",interp,"\n")
-  if (show.desc & !is.null(res.desc)) print(res.desc)
-  if (exists("res.comp") & !is.null(res.comp)) print(knitr::kable(res.comp))
-  if (exists("res.post.hoc") & !is.null(res.post.hoc)) print(knitr::kable(res.post.hoc))
-}
+#'   if (show.interpretation) cat("\n",interp,"\n")
+#'   if (show.desc & !is.null(res.desc)) print(res.desc)
+#'   if (exists("res.comp") & !is.null(res.comp)) print(knitr::kable(res.comp))
+#'   if (exists("res.post.hoc") & !is.null(res.post.hoc)) print(knitr::kable(res.post.hoc))
+#' }
 

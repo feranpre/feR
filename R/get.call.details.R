@@ -1,3 +1,8 @@
+#------------ OBSOLETE ----------------------
+
+
+
+
 .get.call.details <- function(f=NULL){
   origen = 0
   for(num in 1:sys.nframe()){

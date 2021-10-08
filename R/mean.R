@@ -2,7 +2,9 @@
 #'
 #' @export
 #'
-means <- function(x, ..., x.name= NULL,by=NULL,decimals=2,
+means <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
+                  by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
+                  decimals=2,
                    DEBUG=FALSE, DEBUG.FORMA=FALSE, DEBUG.CALL=FALSE,
                    show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                    show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
@@ -14,12 +16,11 @@ means <- function(x, ..., x.name= NULL,by=NULL,decimals=2,
                    p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                    comp=FALSE,
                    show.post.hoc = TRUE,
-                   show.desc=TRUE, paired = T){
+                   show.desc=TRUE, paired = T, errors.as.text=FALSE){
 
 
 
   UseMethod("means")
-
 
 }
 
@@ -28,7 +29,9 @@ means <- function(x, ..., x.name= NULL,by=NULL,decimals=2,
 #'
 #' @export
 #'
-means.default <- function(x, ..., xname= deparse(substitute(x)),by=NULL,decimals=2,
+means.default <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
+                          by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
+                          decimals=2,
                           DEBUG=FALSE, DEBUG.FORMA=FALSE, DEBUG.CALL=FALSE,
                           show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                           show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
@@ -40,9 +43,9 @@ means.default <- function(x, ..., xname= deparse(substitute(x)),by=NULL,decimals
                           p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                           comp=FALSE,
                           show.post.hoc = TRUE,
-                          show.desc=TRUE, paired = T){
+                          show.desc=TRUE, paired = T, errors.as.text=FALSE){
 
-  print("If you end up here there must be trouble")
+  feR:::.error.msg("MEAN_NOT_NUMERIC", lang = lang, errors.as.text = errors.as.text)
   # print(xname)
 }
 
@@ -51,7 +54,8 @@ means.default <- function(x, ..., xname= deparse(substitute(x)),by=NULL,decimals
 #'
 #' @export
 #'
-means.numeric <- function(x, ..., xname= deparse(substitute(x)), by=NULL,decimals=2,
+means.numeric <- function(x, ..., xname= feR:::.var.name(deparse(substitute(x))),
+                          by=NULL, byname = feR:::.var.name(deparse(substitute(by))),decimals=2,
                  DEBUG=FALSE, DEBUG.FORMA=FALSE, DEBUG.CALL=FALSE,
                  show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                  show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
@@ -63,24 +67,69 @@ means.numeric <- function(x, ..., xname= deparse(substitute(x)), by=NULL,decimal
                  p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                  comp=FALSE,
                  show.post.hoc = TRUE,
-                 show.desc=TRUE, paired = T){
+                 show.desc=TRUE, paired = T, errors.as.text=FALSE){
 
-  # print("NUMERO")
-  # x.name <- deparse(substitute(x))
-  # print(xname)
-  return(as.data.frame(.means(x, xname= deparse(substitute(x)), by=by,decimals=decimals,
-         DEBUG=DEBUG, DEBUG.FORMA=DEBUG.FORMA, DEBUG.CALL=DEBUG.CALL,
-         show.vars=show.vars,show.by=show.by,show.groups=show.groups,show.n.valid=show.n.valid,
-         show.n.missing=show.n.missing,show.min=show.min,show.max=show.max,
-         show.mean=show.mean,show.sd=show.sd,show.median=show.median,
-         show.IRQ=show.IRQ,show.se=show.se, show.ci.upper=show.ci.upper,
-         show.ci.lower=show.ci.lower, show.p.norm=show.p.norm,
-         show.p.norm.exact=show.p.norm.exact, show.nor.test=show.nor.test,
-         show.is.normal=show.is.normal, show.interpretation=show.interpretation,
-         lang=lang, show.global=show.global, p.sig=p.sig,
-         p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
-         ci=ci, comp=comp, show.post.hoc=show.post.hoc, show.desc=show.desc,
-         paired=paired)))
+  #........................................................... BY .............
+  if(!missing(by)) {
+    if(!is.factor(by)) {
+      by.value = as.factor(by)
+    }
+    else by.value = by
+
+    for (level in levels(by.value)){
+      res <- .means(x[by.value == level], xname= deparse(substitute(x)), by=by, decimals=decimals,
+                    DEBUG=DEBUG, DEBUG.FORMA=DEBUG.FORMA, DEBUG.CALL=DEBUG.CALL,
+                    show.vars=show.vars,show.by=show.by,show.groups=show.groups,show.n.valid=show.n.valid,
+                    show.n.missing=show.n.missing,show.min=show.min,show.max=show.max,
+                    show.mean=show.mean,show.sd=show.sd,show.median=show.median,
+                    show.IRQ=show.IRQ,show.se=show.se, show.ci.upper=show.ci.upper,
+                    show.ci.lower=show.ci.lower, show.p.norm=show.p.norm,
+                    show.p.norm.exact=show.p.norm.exact, show.nor.test=show.nor.test,
+                    show.is.normal=show.is.normal, show.interpretation=show.interpretation,
+                    lang=lang, show.global=show.global, p.sig=p.sig,
+                    p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
+                    ci=ci, comp=comp, show.post.hoc=show.post.hoc, show.desc=show.desc,
+                    paired=paired, errors.as.text = errors.as.text)
+      res$group = level
+      if(exists("group.res")) group.res <- rbind(group.res, res)
+      else group.res <- res
+      res <- NULL
+    }
+    res = group.res
+  }
+
+  else {
+    res <- .means(x, xname= deparse(substitute(x)), by=by,decimals=decimals,
+                  DEBUG=DEBUG, DEBUG.FORMA=DEBUG.FORMA, DEBUG.CALL=DEBUG.CALL,
+                  show.vars=show.vars,show.by=show.by,show.groups=show.groups,show.n.valid=show.n.valid,
+                  show.n.missing=show.n.missing,show.min=show.min,show.max=show.max,
+                  show.mean=show.mean,show.sd=show.sd,show.median=show.median,
+                  show.IRQ=show.IRQ,show.se=show.se, show.ci.upper=show.ci.upper,
+                  show.ci.lower=show.ci.lower, show.p.norm=show.p.norm,
+                  show.p.norm.exact=show.p.norm.exact, show.nor.test=show.nor.test,
+                  show.is.normal=show.is.normal, show.interpretation=show.interpretation,
+                  lang=lang, show.global=show.global, p.sig=p.sig,
+                  p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
+                  ci=ci, comp=comp, show.post.hoc=show.post.hoc, show.desc=show.desc,
+                  paired=paired, errors.as.text = errors.as.text)
+
+  }
+
+  if(exists("res")){
+    # print(ifelse(nrow(res)==1,xname,c(xname,rep(" ",nrow(res)-1))))
+    # res$var.name <- " "
+    res$var.name[1] <- xname
+    if(any(names(res)=="group")) {
+      # res$group.var = " "
+      res$group.var[1] = byname
+      res <- res[,c("var.name","group.var","group",names(res)[1:(length(names(res))-3)])]
+    }
+    else res <- res[,c("var.name",names(res)[-length(names(res))])]
+
+    # if(!from.data.frame) class(res) <- c("feR.means", class(res))
+    return(res)
+
+  } else return(NA)
 
 }
 
@@ -91,7 +140,7 @@ means.numeric <- function(x, ..., xname= deparse(substitute(x)), by=NULL,decimal
 #'
 #' @export
 #'
-means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL,decimals=2,
+means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byname = deparse(substitute(by)), decimals=2,
                          DEBUG=FALSE, DEBUG.FORMA=FALSE, DEBUG.CALL=FALSE,
                          show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                          show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
@@ -103,42 +152,52 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL,decim
                          p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                          comp=FALSE,
                          show.post.hoc = TRUE,
-                         show.desc=TRUE, paired = T){
+                         show.desc=TRUE, paired = T, errors.as.text=FALSE){
 
-  # print("df")
-  # print(xname)
+
   x.data.frame <- x
   x <- NULL
-
+  num.var.exists <- FALSE
   for(var in names(x.data.frame)) {
     x <- x.data.frame %>% pull(var)
-    res <- means(x, xname = var)
-    if(!exists("final.res")) final.res <- as.data.frame(res)
-    else final.res <- rbind(final.res, res)
-    res <- NULL
+    if(is.numeric(x)) {
+      if(!missing(by)) res <- means(x, xname = var, by = by, byname = byname, from.data.frame = TRUE)
+      else res <- means(x, xname = var, from.data.frame = TRUE)
+      if(!exists("final.res")) final.res <- as.data.frame(res)
+      else final.res <- rbind(final.res, res)
+      res <- NULL
+      num.var.exists <- TRUE
+    }
   }
 
-  if(exists("final.res")) return(final.res)
-  else return(NA)
+  if(num.var.exists) {
+    if(exists("final.res")) {
+      # class(final.res) <- c("feR.means", class(final.res))
+      return(final.res)
+    }
+    else return(NA)
+  } else {
+    stop(feR::.error.msg("MEAN_NOT_NUMERIC", lang = lang))
+  }
 }
 
 
 
 
 
-.means <- function(x, xname= deparse(substitute(x)), decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = .95, ...) {
+.means <- function(x, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = .95, ...) {
   # require("nortest")
 
-  if (!is.numeric(x)) {
-    warning(paste0("[.means] ERROR - Variable ",xname," is not numeric"), call. = FALSE)
-    return(NA)
-  }
+  # if (!is.numeric(x)) {
+  #   warning(paste0("[.means] ERROR - Variable ",xname," is not numeric"), call. = FALSE)
+  #   return(NA)
+  # }
 
   n.missing = sum(is.na(x))
   n.valid = length(x) - n.missing
   x.normal = feR:::.normal(x, n.valid=n.valid)
 
-  if (n.valid > 0) {
+  if (n.valid > 1) {
     min = min(x, na.rm = TRUE)
     max = max(x, na.rm = TRUE)
     mean = round(mean(x, na.rm = TRUE))
@@ -187,8 +246,24 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL,decim
                        "p.norm.exact" = x.normal$p.exact.value,
                        "nor.test" = x.normal$test,
                        "is.normal" =  x.normal$is.normal)
-  class(result) <- append("udaicR",class(result))
+  class(result) <- append("feR.means",class(result))
 
   return(result)
 }
 
+#' print.feR.means
+#'
+#' @export
+print.feR.means <- function(x) {
+  total.vars <- length(unique(x$var.name))
+
+  if(total.vars > 1) {
+    vars <- unique(x$var.name)
+    for(v in vars) {
+      x$var.name[x$var.name == v] <- c(v,rep(" ",length(x$var.name[x$var.name == v])-1))
+    }
+  } else x$var.name[2:length(x$var.name)]<- " "
+
+  if(any(names(x)== "group.var")) x$group.var[x$var.name == " "] <- " " #quitamos el nombre de la variable donde no aparezca nombre de la variable de interés
+  print(knitr::kable(x))
+}
