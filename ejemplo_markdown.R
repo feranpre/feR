@@ -66,3 +66,16 @@ feR::means(data_, "AGE", "AGE", by = "SEX")
 #'
 #+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
 feR::means(data_, "AGE", "HEIGHT", by = c("SEX","BLOND"))
+
+
+
+#' ## Comparison
+#'
+#' ### Non paired
+#'
+#' #### 2 groups
+#'
+#' ##### x=vector, by = vector
+#'
+#+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::comp.means(data_$AGE, by = data_$SEX)

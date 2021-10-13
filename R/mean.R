@@ -223,7 +223,7 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
         #   #... check if its a varname
         #   if(all(by %in% names(x.data.frame))) {
             for(by.name in names(by.data)) {
-              print(by.name)
+              # print(by.name)
               by.value <- dplyr::pull(by.data, by.name)
               by.res <- feR::means(x, xname = var, by = by.value, byname = by.name, from.data.frame = TRUE)
               if(!exists("res")) res <- as.data.frame(by.res)
@@ -329,25 +329,6 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
 #'
 #' @export
 print.feR.means <- function(x) {
-  total.vars <- length(unique(x$var.name))
-  print(total.vars)
-  if(total.vars > 1) {
-    vars <- unique(x$var.name)
-    by.found <- any(names(x)== "group.var")
-    for(v in vars) {
-      rows.var <- length(x$var.name[x$var.name == v])
-      if(by.found) {
-        for(by.var in unique(x$group.var)){
-          rows.by <- length(x$var.name[x$var.name == v & x$group.var == by.var])
-          x$group.var[x$var.name == v & x$group.var == by.var] <- c(by.var,rep(" ",rows.by -1))
-        }
-      }
-      x$var.name[x$var.name == v] <- c(v,rep(" ",rows.var -1))
-    }
-  } else {
-    if(nrow(x) > 1) x$var.name[2:length(x$var.name)]<- " "
-  }
-
-
+  x <- feR:::.clean.table.var.names(x)
   print(knitr::kable(x))
 }

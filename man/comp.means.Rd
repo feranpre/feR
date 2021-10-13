@@ -13,6 +13,7 @@ comp.means(
   byname = feR:::.var.name(deparse(substitute(by))),
   DEBUG = FALSE,
   paired = FALSE,
+  show.descriptives = TRUE,
   decimals = 2
 )
 }

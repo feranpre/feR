@@ -13,6 +13,7 @@
   byname = feR:::.var.name(deparse(substitute(by))),
   DEBUG = FALSE,
   paired = FALSE,
+  show.descriptives = TRUE,
   p.sig = 0.05,
   p.sig.small = 0.01,
   p.sig.very.small = 0.001,

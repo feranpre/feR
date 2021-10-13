@@ -6,6 +6,7 @@ comp.means <- function(x,y=NULL, ..., xname=  feR:::.var.name(deparse(substitute
                        by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
                        DEBUG=FALSE,
                        paired = FALSE,
+                       show.descriptives=TRUE,
                        decimals=2){
 
   if(missing(x)) {
@@ -43,7 +44,9 @@ comp.means <- function(x,y=NULL, ..., xname=  feR:::.var.name(deparse(substitute
 comp.means.numeric <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(substitute(x))),
                        by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
                        DEBUG=FALSE,
-                       paired = FALSE, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
+                       paired = FALSE,
+                       show.descriptives = TRUE,
+                       p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                        decimals=2){
   # print(xname)
   # print(byname)
@@ -51,10 +54,6 @@ comp.means.numeric <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(subs
 
     if(!missing(by)) {
       if(is.data.frame(by)) {
-
-
-
-
 
       }
       else {
@@ -72,7 +71,10 @@ comp.means.numeric <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(subs
       feR:::.error.msg(er="MEAN_COMP_BY_MISSING")
       stop()
     }
-  if(exists("result")) return(result)
+  if(exists("result")) {
+    attr(result,"SHOW.DESCRIPTIVES") <- show.descriptives
+    return(result)
+  }
   else return(NA)
 }
 
@@ -90,6 +92,7 @@ comp.means.data.frame <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(s
   if(DEBUG) cat("\n[comp.means.data.frame] START...\n")
   if(!paired) {
     if(!is.data.frame(by)) {
+
 
     }
     for(var in names(x)) {
@@ -113,22 +116,33 @@ comp.means.data.frame <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(s
 
   normal <- all(x.mean$is.normal)
   if(normal) {
-    test <- t.test(x ~ by, conf.level = ci)
+
+    var.test.p <- car::leveneTest(x, group = by)$`Pr(>F)`[1]
+    homocedasticity.p <- ifelse(var.test.p < p.sig.very.small, paste0("<",p.sig.very.small), round(var.test.p, digits = decimals + 1))
+    homocedasticity <- ifelse(var.test.p < p.sig, FALSE, TRUE)
+
+    test <- t.test(x ~ by, conf.level = ci, var.equal = homocedasticity)
     x.test <- x.mean[,c("var.name","group.var","group","n.valid","n.missing")]
     x.test$comp.test <- "Welch t-test"
+    x.test$df <- test$parameter
     x.test$stat.name <- "t"
-    x.test$stat.value <- test$statistic
-    x.test$p.value <- test$p.value
-    x.test$estimate <- test$estimate
-    x.test$p.symbols[x.test$p.value >= p.sig] <- "-"
-    x.test$p.symbols[x.test$p.value < p.sig] <- "*"
-    x.test$p.symbols[x.test$p.value < p.sig.small] <- "**"
-    x.test$p.symbols[x.test$p.value < p.sig.very.small] <- "***"
-    x.test$ci.low <- test$conf.int[[1]]
-    x.test$ci.high <- test$conf.int[[2]]
+    x.test$stat.value <- round(test$statistic, digits = decimals)
+    x.test$stat.ci.low <- round(test$conf.int[[1]], digits = decimals)
+    x.test$stat.ci.high <- round(test$conf.int[[2]], digits = decimals)
+    x.test$p.value.exact <- round(test$p.value, digits = decimals+1)
+    x.test$p.value <- ifelse(test$p.value < p.sig.very.small, paste0("<",p.sig.very.small), round(test$p.value, digits = decimals + 1))
 
-    class(x.test) <- append("feR.comp.mean", class(x.test))
+    x.test$p.symbols[test$p.value >= p.sig] <- "-"
+    x.test$p.symbols[test$p.value < p.sig] <- "*"
+    x.test$p.symbols[test$p.value < p.sig.small] <- "**"
+    x.test$p.symbols[test$p.value < p.sig.very.small] <- "***"
 
+    x.test$estimate <- round(test$estimate, digits = decimals)
+    x.test$estimate
+
+
+
+    class(x.test) <- append("feR.comp.mean", "data.frame")
   }
 
 
@@ -146,11 +160,13 @@ comp.means.data.frame <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(s
 #' @export
 print.feR.comp.mean.total <- function(x) {
 
-    x.mean <- attr(x,"DESC")
-    x.comp <- attr(x,"COMP")
+    if(attr(x,"SHOW.DESCRIPTIVES")) {
+      x.mean <- attr(x,"DESC")
+      print(x.mean)
+    }
 
-    print(x.mean)
-    print(x.comp)
+  x.comp <- attr(x,"COMP")
+  print(x.comp)
 
 }
 
@@ -162,8 +178,8 @@ print.feR.comp.mean.total <- function(x) {
 #' @export
 print.feR.comp.mean <- function(x) {
 
-
-  feR::print.feR.means(x)
+  x <- feR:::.clean.table.var.names(x)
+  print(knitr::kable(x))
 
 }
 
