@@ -12,8 +12,6 @@
   byname = feR:::.var.name(deparse(substitute(by))),
   decimals = 2,
   DEBUG = FALSE,
-  DEBUG.FORMA = FALSE,
-  DEBUG.CALL = FALSE,
   show.vars = TRUE,
   show.by = TRUE,
   show.groups = TRUE,

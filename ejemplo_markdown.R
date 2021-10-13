@@ -31,11 +31,38 @@ data_$HEALTH <- as.factor(data_$HEALTH)
 #'
 #' ### Passing vector
 #+ , echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
-feR::medias(data_$AGE, DEBUG = T)
+feR::means(data_$AGE)
 
 #'
 #' ### Passing data.frame and var as string
 #'
 #+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
-feR::medias(data_, "AGE")
+feR::means(data_, "AGE", "HEIGHT")
 
+
+#'
+#' ## GRUPOS
+#'
+#' ### Passing vector and BY as vector
+#+ , echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::means(data_$AGE, by = data_$SEX)
+
+#'
+#' ### Passing data.frame and var as string and BY as vector
+#'
+#+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::means(data_, "AGE", "AGE", by = data_$SEX)
+
+
+
+#'
+#' ### Passing data.frame and var as string and BY as string
+#'
+#+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::means(data_, "AGE", "AGE", by = "SEX")
+
+#'
+#' ### Passing data.frame and var as string and BY as string vector
+#'
+#+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::means(data_, "AGE", "HEIGHT", by = c("SEX","BLOND"))

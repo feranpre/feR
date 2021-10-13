@@ -18,9 +18,29 @@ means <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
                    show.post.hoc = TRUE,
                    show.desc=TRUE, paired = T, errors.as.text=FALSE){
 
-
-
-  UseMethod("means")
+  # if(!is.data.frame(x)) {
+  #   x.df<-as.data.frame(x)
+  #   names(x.df) <- xname
+  #   x <- x.df
+  # }
+  #
+  # parametros <- list(...)
+  # print(parametros)
+  # param.names <-print(substitute(list(...)))
+  #
+  # cont = 1
+  # for(y in parametros){
+  #   if(length(y) == nrow(x)) {
+  #     y.data <- as.data.frame(y)
+  #     # print()
+  #     names(y.data) <- fer:::.var
+  #     x <- cbind(x,y)
+  #   }
+  #   cont = cont + 1
+  # }
+  #
+  # print(x)
+  UseMethod("means", x)
 
 }
 
@@ -56,7 +76,7 @@ means.default <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
 #'
 means.numeric <- function(x, ..., xname= feR:::.var.name(deparse(substitute(x))),
                           by=NULL, byname = feR:::.var.name(deparse(substitute(by))),decimals=2,
-                 DEBUG=FALSE, DEBUG.FORMA=FALSE, DEBUG.CALL=FALSE,
+                 DEBUG=FALSE,
                  show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                  show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
                  show.mean=TRUE,show.sd=TRUE,show.median=TRUE,
@@ -68,7 +88,7 @@ means.numeric <- function(x, ..., xname= feR:::.var.name(deparse(substitute(x)))
                  comp=FALSE,
                  show.post.hoc = TRUE,
                  show.desc=TRUE, paired = T, errors.as.text=FALSE){
-
+  if(DEBUG) cat("\n [means.numeric] START...\n")
   #........................................................... BY .............
   if(!missing(by)) {
     if(!is.factor(by)) {
@@ -154,15 +174,69 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
                          show.post.hoc = TRUE,
                          show.desc=TRUE, paired = T, errors.as.text=FALSE){
 
-
+  if(DEBUG) cat("\n [means.data.frame] START...\n")
   x.data.frame <- x
   x <- NULL
   num.var.exists <- FALSE
+
+  #.... checking if there is a by and if its a vector or a data.frame
+  found.by <- !missing(by)
+  if(found.by) {
+    #... by is a vector
+    if(length(by) == nrow(x.data.frame)) {
+      by.data = as.data.frame(by)
+      names(by.data) <- byname
+    }
+    #... is not a vector, lets check for var names
+    else {
+      # print("BY with names")
+      if(any(by %in% names(x.data.frame))) {
+        by.names <- by[by %in% names(x.data.frame)]
+        by.data <- as.data.frame(x.data.frame[,by.names])
+        names(by.data) <- by.names
+      }
+      else print("ERROR IN BY")
+      # print(by.data)
+    }
+  }
+
+  #.... checking if there are var names in ...
+  parametros <- unlist(list(...))
+  # print(parametros)
+  param.all <- all(parametros %in% names(x.data.frame))
+  if(param.all) {
+    x.data.frame <- x.data.frame[,parametros]
+  }
+
+
   for(var in names(x.data.frame)) {
-    x <- x.data.frame %>% pull(var)
+    x <-  dplyr::pull(x.data.frame, var)
     if(is.numeric(x)) {
-      if(!missing(by)) res <- means(x, xname = var, by = by, byname = byname, from.data.frame = TRUE)
-      else res <- means(x, xname = var, from.data.frame = TRUE)
+      if(found.by) {
+        #.... by is a vector with the same length as the data.frame
+        # if(length(by) == length(x)) res <- means(x, xname = var, by = by, byname = byname, from.data.frame = TRUE)
+        # else {
+        #
+          # print("BY")
+        #   print(by)
+        #   print(names(x.data.frame))
+        #   #... check if its a varname
+        #   if(all(by %in% names(x.data.frame))) {
+            for(by.name in names(by.data)) {
+              print(by.name)
+              by.value <- dplyr::pull(by.data, by.name)
+              by.res <- feR::means(x, xname = var, by = by.value, byname = by.name, from.data.frame = TRUE)
+              if(!exists("res")) res <- as.data.frame(by.res)
+              else res <- rbind(res, by.res)
+            }
+
+          # } else {
+          #   print("ERROR IN BY")
+          # }
+        # }
+      }
+      #... no by
+      else res <- feR::means(x, xname = var, from.data.frame = TRUE)
       if(!exists("final.res")) final.res <- as.data.frame(res)
       else final.res <- rbind(final.res, res)
       res <- NULL
@@ -172,7 +246,7 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
 
   if(num.var.exists) {
     if(exists("final.res")) {
-      # class(final.res) <- c("feR.means", class(final.res))
+      class(final.res) <- c("feR.means", class(final.res))
       return(final.res)
     }
     else return(NA)
@@ -256,14 +330,24 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
 #' @export
 print.feR.means <- function(x) {
   total.vars <- length(unique(x$var.name))
-
+  print(total.vars)
   if(total.vars > 1) {
     vars <- unique(x$var.name)
+    by.found <- any(names(x)== "group.var")
     for(v in vars) {
-      x$var.name[x$var.name == v] <- c(v,rep(" ",length(x$var.name[x$var.name == v])-1))
+      rows.var <- length(x$var.name[x$var.name == v])
+      if(by.found) {
+        for(by.var in unique(x$group.var)){
+          rows.by <- length(x$var.name[x$var.name == v & x$group.var == by.var])
+          x$group.var[x$var.name == v & x$group.var == by.var] <- c(by.var,rep(" ",rows.by -1))
+        }
+      }
+      x$var.name[x$var.name == v] <- c(v,rep(" ",rows.var -1))
     }
-  } else x$var.name[2:length(x$var.name)]<- " "
+  } else {
+    if(nrow(x) > 1) x$var.name[2:length(x$var.name)]<- " "
+  }
 
-  if(any(names(x)== "group.var")) x$group.var[x$var.name == " "] <- " " #quitamos el nombre de la variable donde no aparezca nombre de la variable de interés
+
   print(knitr::kable(x))
 }

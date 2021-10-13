@@ -7,6 +7,7 @@
     "MEAN_NOT_NUMERIC" = "Se requiere un vector numérico o un data.frame con al menos una variable numérica",
     "MEAN_COMP_X_MISSING" = "Falta vector de datos numéricos 'X' para comparación de medias",
     "MEAN_COMP_Y_MISSING" = "Falta vector de datos numéricos 'Y' para comparación de medias",
+    "MEAN_COMP_PAIRED_MUST_BE_2" = "Para comparar medias apareadas hace falta que el data.frame tenga solo dos variables",
     "MEAN_COMP_BY_MISSING" = "Falta factor de agrupacion para comparación de medias"
   )
 

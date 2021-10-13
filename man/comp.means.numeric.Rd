@@ -11,6 +11,7 @@
   xname = feR:::.var.name(deparse(substitute(x))),
   by = NULL,
   byname = feR:::.var.name(deparse(substitute(by))),
+  DEBUG = FALSE,
   paired = FALSE,
   p.sig = 0.05,
   p.sig.small = 0.01,
