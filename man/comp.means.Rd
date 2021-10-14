@@ -28,7 +28,9 @@ comp.means(
   show.p.value = TRUE,
   show.p.symbols = TRUE,
   show.estimate = TRUE,
-  decimals = 2
+  decimals = 2,
+  lang = "es",
+  stop.on.error = TRUE
 )
 }
 \description{

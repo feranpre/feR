@@ -1,9 +1,14 @@
 #' means.default
 #'
 
-.error.msg <- function(er="DEFAULT", lang = "es", stop.on.error = TRUE) {
+.error.msg <- function(er="DEFAULT", lang = "es") {
   error_msg.es <- c(
     "DEFAULT"="Ha habido un problema inespecífico",
+    "T_STUDENT"="Ha habido un problema al realizar un t.test (Student)" ,
+    "T_WELCH"="Ha habido un problema al realizar un t.test (Welch)",
+
+
+
     "MEAN_NOT_NUMERIC" = "Se requiere un vector numérico o un data.frame con al menos una variable numérica",
     "MEAN_BY" = "Se ha especificado una variable de agrupación que no puede ser usada",
     "MEAN_COMP_X_MISSING" = "Falta vector de datos numéricos 'X' para comparación de medias",
@@ -25,9 +30,9 @@
     else msg <- "Error"
   }
 
-  cat("\n[ERROR]: ",deparse(sys.calls()[[1]]),"\n", msg,"\n")
+  message("\n[ERROR]: ",deparse(sys.calls()[[1]]),"\n", msg,"\n")
   # else stop(paste0("\n[ERROR]: ", msg,"\n"))
-  if(stop.on.error) stop(msg,call. = F)
+  # if(stop.on.error) stop(msg,call. = F)
 }
 
 

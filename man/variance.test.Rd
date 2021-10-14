@@ -26,7 +26,9 @@ variance.test(
   show.p.value.exact = TRUE,
   show.p.value = TRUE,
   show.p.symbols = TRUE,
-  show.estimate = TRUE
+  show.estimate = TRUE,
+  lang = "es",
+  stop.on.error = TRUE
 )
 }
 \description{

@@ -4,9 +4,9 @@
 \alias{.error.msg}
 \title{means.default}
 \usage{
-.error.msg(er = "DEFAULT", lang = "es", as.text = TRUE)
+.error.msg(er = "DEFAULT", lang = "es", stop.on.error = TRUE)
 
-.error.msg(er = "DEFAULT", lang = "es", as.text = TRUE)
+.error.msg(er = "DEFAULT", lang = "es", stop.on.error = TRUE)
 }
 \description{
 means.default

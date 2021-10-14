@@ -249,12 +249,12 @@ comp.means.data.frame <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(s
   x.test <- x.mean[,c("var.name","group.var","group","n.valid","n.missing")]
 
   if(method == "Student") {
-    x.test <- cbind(x.test,feR:::.comp.means.2.groups.welch(x,by=by,ci=ci
+    .test <- cbind(x.test,feR:::.welch.t.test(x,by=by,ci=ci
                                                             ))
     attr(x.test,"TEST") <- "t.test"
   }
   else if (method == "Welch") {
-    x.test <- cbind(x.test,feR:::.comp.means.2.groups.welch(x,by=by,ci=ci
+    .test <- cbind(x.test,feR:::.welch.t.test(x,by=by,ci=ci
                                                             ))
     attr(x.test,"TEST") <- "t.test"
   }
@@ -271,8 +271,8 @@ comp.means.data.frame <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(s
 
 
 
-      if(homocedasticity) x.test <- cbind(x.test,feR:::.comp.means.2.groups.welch(x,by=by,ci=ci))
-      else x.test <- cbind(x.test,feR:::.comp.means.2.groups.student(x,by=by,ci=ci))
+      if(homocedasticity) x.test <- cbind(x.test,feR::t.test.welch(x,by=by,ci=ci))
+      else x.test <- cbind(x.test,feR::t.test.student(x,by=by,ci=ci))
 
 
 
@@ -323,48 +323,12 @@ comp.means.data.frame <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(s
     names(x.variance.part) <- paste0("var.test.", names(x.variance.part))
     result <- cbind(x.mean.part, x.variance.part, x.test.part)
     attr(result,"VARIANCE") <- x.variance
-  }
-  else result <- cbind(x.mean.part, x.test.part)
+  } else result <- cbind(x.mean.part, x.test.part)
   class(result) <- append("feR.comp.mean.total", class(result))
   attr(result,"DESC") <- x.mean
   attr(result,"COMP") <- x.test
   attr(result,"TEST") <- "t.test"
   return(result)
-}
-
-
-.comp.means.2.groups.welch <- function(x,by=NA,ci=0.95){
-  test <- t.test(x ~ by, conf.level = ci, var.equal = TRUE)
-  x.test <- feR:::.t.test.results(test)
-  x.test$test.name <- "Welch t-test"
-  return(x.test)
-}
-
-.comp.means.2.groups.student <- function(x,by=NA,ci=0.95){
-  test <- t.test(x ~ by, conf.level = ci, var.equal = FALSE)
-  x.test <- feR:::.t.test.results(test)
-  x.test$test.name <- "Student t-test"
-  return(x.test)
-}
-
-
-.t.test.results <- function(test){
-  x.test <- data.frame(test.name = c("",""))
-  x.test$df <- test$parameter
-  x.test$stat.name <- "t"
-  x.test$stat.value <- test$statistic
-  x.test$stat.ci.low <- test$conf.int[[1]]
-  x.test$stat.ci.high <- test$conf.int[[2]]
-  x.test$p.value <- test$p.value
-
-
-
-  x.test$estimate <- test$estimate
-  x.test$mean.diff <- test$estimate[[1]] - test$estimate[[2]]
-  x.test$mean.diff.ci.low <- test$conf.int[[1]]
-  x.test$mean.diff.ci.high <- test$conf.int[[2]]
-  return(x.test)
-
 }
 
 #'

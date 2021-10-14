@@ -43,7 +43,7 @@
   show.post.hoc = TRUE,
   show.desc = TRUE,
   paired = T,
-  errors.as.text = FALSE
+  stop.on.error = TRUE
 )
 }
 \description{

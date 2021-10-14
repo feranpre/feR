@@ -28,7 +28,9 @@
   p.sig.small = 0.01,
   p.sig.very.small = 0.001,
   ci = 0.95,
-  decimals = 2
+  decimals = 2,
+  stop.on.error = TRUE,
+  lang = "es"
 )
 }
 \description{

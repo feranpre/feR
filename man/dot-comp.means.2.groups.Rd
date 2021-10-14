@@ -16,7 +16,10 @@
   p.sig = 0.05,
   p.sig.small = 0.01,
   p.sig.very.small = 0.001,
-  ci = 0.95
+  ci = 0.95,
+  lang = "es",
+  stop.on.error = TRUE,
+  method = "auto"
 )
 }
 \description{
