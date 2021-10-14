@@ -1,14 +1,19 @@
 #' means.default
 #'
 
-.error.msg <- function(er="DEFAULT", lang = "es", as.text = TRUE) {
+.error.msg <- function(er="DEFAULT", lang = "es", stop.on.error = TRUE) {
   error_msg.es <- c(
     "DEFAULT"="Ha habido un problema inespecífico",
     "MEAN_NOT_NUMERIC" = "Se requiere un vector numérico o un data.frame con al menos una variable numérica",
+    "MEAN_BY" = "Se ha especificado una variable de agrupación que no puede ser usada",
     "MEAN_COMP_X_MISSING" = "Falta vector de datos numéricos 'X' para comparación de medias",
     "MEAN_COMP_Y_MISSING" = "Falta vector de datos numéricos 'Y' para comparación de medias",
     "MEAN_COMP_PAIRED_MUST_BE_2" = "Para comparar medias apareadas hace falta que el data.frame tenga solo dos variables",
-    "MEAN_COMP_BY_MISSING" = "Falta factor de agrupacion para comparación de medias"
+    "MEAN_COMP_BY_MISSING" = "Falta factor de agrupacion para comparación de medias",
+    "MEAN_COMP_BY_ERROR" = "Se ha detectado un factor de agrupación pero no puede usarse por algún motivo",
+    "VARIANCE_TEST_X_MISSING" = "Falta variable numérica para test de varianzas",
+    "VARIANCE_TEST_BY_MISSING" = "Falta factor de agrupacion para test de varianzas",
+    "VARIANCE_TEST_1_GROUP" = "La variable grupo necesita ser categorica y tener al menos 2 niveles"
   )
 
   if(lang == "es") {
@@ -20,9 +25,9 @@
     else msg <- "Error"
   }
 
-  if(as.text) cat("\n[ERROR]: ", msg,"\n")
-  else stop(paste0("\n[ERROR]: ", msg,"\n"))
-
+  cat("\n[ERROR]: ",deparse(sys.calls()[[1]]),"\n", msg,"\n")
+  # else stop(paste0("\n[ERROR]: ", msg,"\n"))
+  if(stop.on.error) stop(msg,call. = F)
 }
 
 
@@ -33,6 +38,7 @@
   else if (grepl("c(", xname, fixed=TRUE)) {
     xname <- xname[1:ifelse(length(xname)>=10,10,length(xname))]
   }
+  xname <- gsub("\"","",xname)
   return(xname)
 }
 
@@ -63,45 +69,59 @@
 #'
 #' It does something similar for stat columns but instead of leaving the first instance leaves the last one
 #'
-.clean.table.var.names <- function(x) {
-  total.vars <- length(unique(x$var.name))
-  vars <- unique(x$var.name)
+.clean.table.var.names <- function(x, DEBUG=FALSE) {
+  if(DEBUG){
+    cat("\n--------------------- PRINT-----------------\n")
+    print(class(x))
+    print(attr(x,"TEST"))
+    cat("\n---------------------------------------------\n")
+  }
+  # total.vars <- length(unique(x$var.name))
   by.found <- any("group.var" %in% names(x))
-  for(v in vars) {
+  for(v in unique(x$var.name)) {
     rows.var <- length(x$var.name[x$var.name == v])
     if(by.found) {
       for(by.var in unique(x$group.var)){
-        rows.by <- length(x$var.name[x$var.name == v & x$group.var == by.var])
+        select.group <- x$var.name == v & x$group.var == by.var
+        rows.by <- length(x$var.name[select.group])
 
-        if("comp.test" %in% names(x)) {
-          if(table(x$comp.test) == rows.by) x$comp.test <- c(rep(" ", rows.by -1), x$comp.test[rows.by])
-        }
-        if("df" %in% names(x)) {
-          if(table(x$df) == rows.by) x$df <- c(rep(" ", rows.by -1), x$df[rows.by])
-        }
+        if(!is.null(attr(x,"TEST"))) {
+          if(attr(x,"TEST") == "t.test") {
+            if(DEBUG) cat("\n Cleaning t.test table\n")
 
-        if("stat.name" %in% names(x)) {
-          if(table(x$stat.name) == rows.by) x$stat.name <- c(rep(" ", rows.by -1), x$stat.name[rows.by])
+            if("comp.test" %in% names(x)) {
+              if(length(unique(x$comp.test[select.group])) == 1)
+                x$comp.test[select.group] <- c(rep(" ", rows.by -1), x$comp.test[select.group][rows.by])
+            }
+            if("df" %in% names(x)) {
+              if(length(unique(x$df[select.group])) == 1) x$df[select.group] <- c(rep(" ", rows.by -1), x$df[select.group][rows.by])
+            }
+
+            if("stat.name" %in% names(x)) {
+              if(length(unique(x$stat.name[select.group])) == 1) x$stat.name[select.group] <- c(rep(" ", rows.by -1), x$stat.name[select.group][rows.by])
+            }
+            if("stat.value" %in% names(x)) {
+              if(length(unique(x$stat.value[select.group])) == 1) x$stat.value[select.group] <- c(rep(" ", rows.by -1), x$stat.value[select.group][rows.by])
+            }
+            # if("p.value" %in% names(x)) {
+            #   if(length(unique(x$p.value[select.group])) == 1) x$p.value[select.group] <- c(rep(" ", rows.by -1), x$p.value[select.group][rows.by])
+            # }
+            if("p.value.exact" %in% names(x)) {
+              if(length(unique(x$p.value.exact[select.group])) == 1) x$p.value.exact[select.group] <- c(rep(" ", rows.by -1), x$p.value.exact[select.group][rows.by])
+            }
+            if("p.symbols" %in% names(x)) {
+              if(length(unique(x$p.symbols[select.group])) == 1) x$p.symbols[select.group] <- c(rep(" ", rows.by -1), x$p.symbols[select.group][rows.by])
+            }
+            if("stat.ci.high" %in% names(x)) {
+              if(length(unique(x$stat.ci.high[select.group])) == 1) x$stat.ci.high[select.group] <- c(rep(" ", rows.by -1), x$stat.ci.high[select.group][rows.by])
+            }
+            if("stat.ci.low" %in% names(x)) {
+              if(length(unique(x$stat.ci.low[select.group])) == 1) x$stat.ci.low[select.group] <- c(rep(" ", rows.by -1), x$stat.ci.low[select.group][rows.by])
+            }
+
+          }
         }
-        if("stat.value" %in% names(x)) {
-          if(table(x$stat.value) == rows.by) x$stat.value <- c(rep(" ", rows.by -1), x$stat.value[rows.by])
-        }
-        if("p.value" %in% names(x)) {
-          if(table(x$p.value) == rows.by) x$p.value <- c(rep(" ", rows.by -1), x$p.value[rows.by])
-        }
-        if("p.value.exact" %in% names(x)) {
-          if(table(x$p.value.exact) == rows.by) x$p.value.exact <- c(rep(" ", rows.by -1), x$p.value.exact[rows.by])
-        }
-        if("p.symbols" %in% names(x)) {
-          if(table(x$p.symbols) == rows.by) x$p.symbols <- c(rep(" ", rows.by -1), x$p.symbols[rows.by])
-        }
-        if("stat.ci.high" %in% names(x)) {
-          if(table(x$stat.ci.high) == rows.by) x$stat.ci.high <- c(rep(" ", rows.by -1), x$stat.ci.high[rows.by])
-        }
-        if("stat.ci.low" %in% names(x)) {
-          if(table(x$stat.ci.low) == rows.by) x$stat.ci.low <- c(rep(" ", rows.by -1), x$stat.ci.low[rows.by])
-        }
-        x$group.var[x$var.name == v & x$group.var == by.var] <- c(by.var,rep(" ",rows.by -1))
+        x$group.var[select.group] <- c(by.var,rep(" ",rows.by -1))
       }
     }
     x$var.name[x$var.name == v] <- c(v,rep(" ",rows.var -1))

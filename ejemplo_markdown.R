@@ -32,6 +32,10 @@ data_$HEALTH <- as.factor(data_$HEALTH)
 #' ### Passing vector
 #+ , echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
 feR::means(data_$AGE)
+#'
+#' #### Passing vector ERROR
+#+ , echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::means(data_$SEX, stop.on.error = F)
 
 #'
 #' ### Passing data.frame and var as string
@@ -79,3 +83,21 @@ feR::means(data_, "AGE", "HEIGHT", by = c("SEX","BLOND"))
 #'
 #+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
 feR::comp.means(data_$AGE, by = data_$SEX)
+
+#'
+#' ##### x=vector, by = data.frame
+#'
+#+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::comp.means(data_$AGE, by = data_[,c("SEX","BLOND")])
+
+#'
+#' ##### x=data.frame, by = data.frame
+#'
+#+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::comp.means(data_, by = data_[,c("SEX","BLOND")])
+
+#'
+#' ##### x=data.frame, by = string/s (var.name/s)
+#'
+#+ , results = 'asis', echo = FALSE, message = FALSE, warning = FALSE, eval =TRUE, width = 25, height = 25, unit = "cm"
+feR::comp.means(data_, by = c("SEX","BLOND"))

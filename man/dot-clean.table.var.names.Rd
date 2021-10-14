@@ -4,7 +4,7 @@
 \alias{.clean.table.var.names}
 \title{.clean.table.var.names}
 \usage{
-.clean.table.var.names(x)
+.clean.table.var.names(x, DEBUG = FALSE)
 }
 \description{
 the comp.mean and means functions return a data.frame with this aspect
@@ -29,4 +29,6 @@ The desired output is:
 |         |          |Male   |      12|         4| 120.00000| 193.00000|  161| 25| 163.00000| 33.50| 7.26|   175.22|   146.78|   0.30|    0.2990383|SW       |TRUE      |
 
 This is what this function does
+
+It does something similar for stat columns but instead of leaving the first instance leaves the last one
 }

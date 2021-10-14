@@ -5,7 +5,7 @@
 means <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
                   by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
                   decimals=2,
-                   DEBUG=FALSE, DEBUG.FORMA=FALSE, DEBUG.CALL=FALSE,
+                   DEBUG=FALSE,
                    show.vars=TRUE,show.by=TRUE,show.groups=TRUE,show.n.valid=TRUE,
                    show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
                    show.mean=TRUE,show.sd=TRUE,show.median=TRUE,
@@ -16,30 +16,8 @@ means <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
                    p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                    comp=FALSE,
                    show.post.hoc = TRUE,
-                   show.desc=TRUE, paired = T, errors.as.text=FALSE){
+                   show.desc=TRUE, paired = T, stop.on.error=FALSE){
 
-  # if(!is.data.frame(x)) {
-  #   x.df<-as.data.frame(x)
-  #   names(x.df) <- xname
-  #   x <- x.df
-  # }
-  #
-  # parametros <- list(...)
-  # print(parametros)
-  # param.names <-print(substitute(list(...)))
-  #
-  # cont = 1
-  # for(y in parametros){
-  #   if(length(y) == nrow(x)) {
-  #     y.data <- as.data.frame(y)
-  #     # print()
-  #     names(y.data) <- fer:::.var
-  #     x <- cbind(x,y)
-  #   }
-  #   cont = cont + 1
-  # }
-  #
-  # print(x)
   UseMethod("means", x)
 
 }
@@ -63,9 +41,9 @@ means.default <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
                           p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                           comp=FALSE,
                           show.post.hoc = TRUE,
-                          show.desc=TRUE, paired = T, errors.as.text=FALSE){
+                          show.desc=TRUE, paired = T, stop.on.error=TRUE){
 
-  feR:::.error.msg("MEAN_NOT_NUMERIC", lang = lang, errors.as.text = errors.as.text)
+  feR:::.error.msg("MEAN_NOT_NUMERIC", lang = lang, stop.on.error = stop.on.error)
   # print(xname)
 }
 
@@ -87,7 +65,7 @@ means.numeric <- function(x, ..., xname= feR:::.var.name(deparse(substitute(x)))
                  p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                  comp=FALSE,
                  show.post.hoc = TRUE,
-                 show.desc=TRUE, paired = T, errors.as.text=FALSE){
+                 show.desc=TRUE, paired = T){
   if(DEBUG) cat("\n [means.numeric] START...\n")
   #........................................................... BY .............
   if(!missing(by)) {
@@ -195,7 +173,7 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
         by.data <- as.data.frame(x.data.frame[,by.names])
         names(by.data) <- by.names
       }
-      else print("ERROR IN BY")
+      else feR:::.error.msg("MEAN_BY", lang = lang, stop.on.error = stop.on.error)
       # print(by.data)
     }
   }
@@ -250,9 +228,8 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
       return(final.res)
     }
     else return(NA)
-  } else {
-    stop(feR::.error.msg("MEAN_NOT_NUMERIC", lang = lang))
-  }
+  } else feR:::.error.msg("MEAN_NOT_NUMERIC", lang = lang, stop.on.error = stop.on.error)
+
 }
 
 
