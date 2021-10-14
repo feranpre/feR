@@ -171,7 +171,7 @@ comp.means.data.frame <- function(x,y=NULL, ..., xname=feR:::.var.name(deparse(s
                                paired = FALSE, p.sig = 0.05,
                                p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
                                decimals=2,
-                               lang="es", stop.on.error = TRUE){
+                               lang="es", stop.on.error = TRUE, method = "auto"){
 
   if(DEBUG) cat("\n[comp.means.data.frame] START...\n")
   if(!paired) {
