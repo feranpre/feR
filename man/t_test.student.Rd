@@ -4,7 +4,14 @@
 \alias{t_test.student}
 \title{t_test.student}
 \usage{
-t_test.student(x, by = NA, ci = 0.95)
+t_test.student(
+  x,
+  xname = feR:::.var.name(deparse(substitute(x))),
+  by = NULL,
+  byname = feR:::.var.name(deparse(substitute(by))),
+  ci = 0.95,
+  stop.on.error = FALSE
+)
 }
 \description{
 t_test.student

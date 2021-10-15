@@ -21,19 +21,18 @@
 #' PERO LO PRIMERO es hacer que todo esto funcione suave y pueda tener toda la estadística en orden
 
 
-
-
-
-
-
-
-
 #' t_test.welch
 #'
 #' @export
 t_test.welch <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
                          by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
-                         ci=0.95, stop.on.error = FALSE){
+                         ci=0.95, decimals = 2,
+                         stop.on.error = FALSE){
+  tryCatch(feR:::.check.t_test.parameters(x,by), error = function(e) {
+    if(stop.on.error) stop(e)
+    else return(NA)
+  })
+
   test <- tryCatch(t.test(x ~ by, conf.level = ci, var.equal = TRUE),
                     error = function(e) {
                       feR:::.error.msg(er = "T_WELCH")
@@ -44,13 +43,9 @@ t_test.welch <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
                     })
 
   if(is.na(test)) return(NA)
-  x.test <- feR:::.t.test.results(test)
-  x.test$var.name <- xname
-  x.test$by.name <- byname
-  x.test$test.name <- "Welch t-test"
+  x.test <- feR:::.t.test.results(test, xname, byname, levels(as.factor(by)), "Welch t-test")
   return(x.test)
 }
-
 
 
 
@@ -60,26 +55,31 @@ t_test.welch <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
 t_test.student <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
                            by=NULL, byname = feR:::.var.name(deparse(substitute(by)))
                            ,ci=0.95, stop.on.error = FALSE){
+  tryCatch(feR:::.check.t_test.parameters(x,by), error = function(e) {
+    if(stop.on.error) stop(e)
+    else return(NA)
+  })
+
   test <- tryCatch(t.test(x ~ by, conf.level = ci, var.equal = FALSE),
                     error = function(e) {
                      feR:::.error.msg(er = "T_STUDENT")
                       message("Error original: ")
                       message(e,"\n")
-                      if(stop.on.error) stop()
+                      if(stop.on.error) stop(e)
                       else return(NA)
                     })
 
   if(length(test) == 1) if(is.na(test)) return(NA)
-  x.test <- feR:::.t.test.results(test)
-  x.test$var.name <- xname
-  x.test$by.name <- byname
-  x.test$test.name <- "Student t-test"
+  x.test <- feR:::.t.test.results(test, xname, byname, levels(as.factor(by)),"Student t-test")
   return(x.test)
 }
 
 
-.t.test.results <- function(test){
-  x.test <- data.frame(var.name = c("",""),by.name = c("",""),test.name = c("",""))
+.t.test.results <- function(test, xname, byname, by.levels, testname){
+  x.test <- data.frame(var.name = c(xname,xname))
+  x.test$by.name <- byname
+  x.test$by.levels <- by.levels
+  x.test$test.name <- testname
   x.test$df <- test$parameter
   x.test$stat.name <- "t"
   x.test$stat.value <- test$statistic
@@ -99,26 +99,18 @@ t_test.student <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
 
 
 
+
 .t.test.PRUEBAS <- function() {
-  data_ <- data.frame(AGE=rnorm(30, mean = 30, sd = 5),
-                      HEIGHT=sample(x = 120:205, size=30, replace = TRUE ),
-                      SEX=sample(x = c("Male", "Female"), prob = c(.5,.5), size = 30, replace = TRUE),
-                      BLOND=sample(x = c("Yes", "No"), prob = c(.2,.8), size = 30, replace = TRUE),
-                      HEALTH=sample(x = c("Bad", "Normal", "Excelent"), prob = c(0.3,.3,.3), size = 30, replace = TRUE)
-  )
-  data_ <- rbind(data_, list(34,NA,NA,NA,NA))
-  data_ <- rbind(data_, list(33,NA,"Male",NA,NA))
-  data_ <- rbind(data_, list(22,NA,NA,"No",NA))
-  data_ <- rbind(data_, list(NA,NA,NA,"No","Bad"))
-  data_$EMPTY <- rep(NA,nrow(data_))
-  data_$HEALTH <- as.factor(data_$HEALTH)
-
+  data("ToothGrowth")
   #................................................................. ERRORES
-  feR::t_test.student(data_$BLOND, by= data_$SEX) #... error no numeric
-  feR::t_test.student(data_$AGE) #... error no BY
-  feR::t_test.student(data_$AGE, by= data_$HEALTH) #... by with more than 2 levels
-
+  testthat::expect_error(feR::t_test.student(stop.on.error = T, lang = "en"),feR:::.error.msg("MISSING_X", lang="en"))
+  testthat::expect_error(feR::t_test.student(as.character(ToothGrowth$len), stop.on.error = T, lang = "en"),feR:::.error.msg("NON_NUM_VECTOR", lang="en"))
+  testthat::expect_error(feR::t_test.student(ToothGrowth$len, stop.on.error = T, lang = "en"),feR:::.error.msg("DIFF_LEN_VECTOR", lang="en"))
+  testthat::expect_error(feR::t_test.student(ToothGrowth$len, by = ToothGrowth$supp[1:3], stop.on.error = T, lang = "en"),feR:::.error.msg("DIFF_LEN_VECTOR", lang="en"))
+  testthat::expect_error(feR::t_test.student(ToothGrowth$len, by = ToothGrowth$dose, stop.on.error = T, lang = "en"),feR:::.error.msg("2_GROUPS", lang="en"))
+  testthat::expect_error(feR::t_test.student(as.numeric(c(1,2,rep(NA,2))), by= as.factor(c("a","b","a","b")), stop.on.error = T, lang = "en"), feR:::.error.msg("NOT_ENOUGH_X_OBS", lang="en"))
+  testthat::expect_error(feR::t_test.student(ToothGrowth$len[1:4], by= as.factor(c("a","b",rep(NA,2))), stop.on.error = T, lang = "en"), feR:::.error.msg("NOT_ENOUGH_BY_OBS", lang="en"))
 
   #................................................................. OK
-  feR::t_test.student(data_$AGE, by= data_$SEX)
+  feR::t_test.student(ToothGrowth$len, by=ToothGrowth$supp, stop.on.error = T, ci = 2)
 }
