@@ -10,6 +10,8 @@
     "NOT_ENOUGH_BY_OBS" = "not enough 'by' observations",
     "MISSING_CI" = "missing 'confidence interval'",
     "CI_LIMITS" = "'confidence interval' must be a number > 0 and < 1",
+    "T_TEST_NOT_VALID" = "el test especificado no es correcto. Las opciones disponibles son: 'auto', 'student' y 'welch'",
+    "ALTERNATIVE_T_TEST_NOT_VALID" = "se ha especificado una hypotesis alternativa no correcta. Las opciones disponbiles son: 'two.sided', 'less' y 'greater'",
 
 
     "DEFAULT"="Ha habido un problema inespecífico",
@@ -41,6 +43,7 @@
     "NOT_ENOUGH_BY_OBS" = "not enough 'by' observations",
     "MISSING_CI" = "missing 'confidence interval'",
     "CI_LIMITS" = "'confidence interval' must be a number > 0 and < 1",
+    "T_TEST_NOT_VALID" = "t test specified is not correct. Correct options are: 'auto', 'student' and 'welch'",
     "ALTERNATIVE_T_TEST_NOT_VALID" = "an alternative hypothesis was specified that is not correct. Correct options are: 'two.sided', 'less' and 'greater'"
   )
 
@@ -54,20 +57,7 @@
   }
 }
 
-.check.t_test.parameters <- function(x,by,ci=0.95,alternative="two.sided", lang = "en") {
 
-  if(missing(x)) stop(feR:::.error.msg("MISSING_X", lang=lang))
-  if(missing(by)) stop(feR:::.error.msg("MISSING_BY", lang=lang))
-  if(!is.numeric(x)) stop(feR:::.error.msg("NON_NUM_VECTOR", lang=lang))
-  if(length(x) != length(by)) stop(feR:::.error.msg("DIFF_LEN_VECTOR", lang=lang))
-  if(!is.factor(by)) by <- as.factor(by)
-  if(length(levels(by))!= 2) stop(feR:::.error.msg("2_GROUPS", lang=lang))
-  if(sum(!is.na(x))<4) stop(feR:::.error.msg("NOT_ENOUGH_X_OBS", lang=lang))
-  if(sum(!is.na(by))<4) stop(feR:::.error.msg("NOT_ENOUGH_BY_OBS", lang=lang))
-  if(missing(ci)) stop(feR:::.error.msg("MISSING_CI", lang=lang))
-  if(!any(alternative %in% c("two.sided", "less", "greater"))) stop(feR:::.error.msg("ALTERNATIVE_T_TEST_NOT_VALID", lang=lang))
-  feR:::.check.stat.parameters(ci=ci, lang = lang)
-}
 
 .check.stat.parameters <- function(ci, lang = "en") {
   if(ci<0 | ci >1) stop(feR:::.error.msg("CI_LIMITS", lang=lang))

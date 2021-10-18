@@ -1,3 +1,14 @@
+#' TODO:
+#'
+#' Implementar el stop.on.error
+#' Implementar lang
+#'
+#' Redondeo y eliminación de información inutil en print, pero no en data.frame
+#'
+
+
+
+
 #' variance.test
 #'
 #' @export
@@ -42,7 +53,7 @@ variance.test <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
 variance.test.numeric <- function(x, xname=  feR:::.var.name(deparse(substitute(x))),
                                   by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
                                   p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
-                                  decimals = 2, DEBUG = FALSE) {
+                                  decimals = 2, DEBUG = FALSE, lang = "es", stop.on.error = TRUE) {
 
   by.name = byname
   if(!is.factor(by)) by <- as.factor(by)

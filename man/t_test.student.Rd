@@ -10,7 +10,9 @@ t_test.student(
   by = NULL,
   byname = feR:::.var.name(deparse(substitute(by))),
   ci = 0.95,
-  stop.on.error = FALSE
+  alternative = "two.sided",
+  stop.on.error = FALSE,
+  lang = "es"
 )
 }
 \description{

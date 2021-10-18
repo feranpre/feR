@@ -2,14 +2,7 @@
 % Please edit documentation in R/t.tests.R
 \name{t_test.welch}
 \alias{t_test.welch}
-\title{=============================================
-ORDENANDO COSAS
-=============================================
-- Estas funciones deberían controlar sus errores básicos
-- Devolver un data.frame con la información
-- Tener un print que saque la información adecuadamente
-- Tener su set de pruebas
-- USAR FORMULAS}
+\title{t_test.welch}
 \usage{
 t_test.welch(
   x,
@@ -17,22 +10,11 @@ t_test.welch(
   by = NULL,
   byname = feR:::.var.name(deparse(substitute(by))),
   ci = 0.95,
-  decimals = 2,
-  stop.on.error = FALSE
+  alternative = "two.sided",
+  stop.on.error = FALSE,
+  lang = "es"
 )
 }
 \description{
-Una vez que esté esto resuelto usaré este sistema para ampliarlo a todo
-- Primero archivo con las pruebas matemáticas y sus soluciones
-- Despues muestra de resultados y ampliación de información (otro archivo)
-- Por último un wrapper que permita discriminar qué función usar y agregue todo
-    - Este wrapper será el que determine:
-          - qué prueba usar
-          - si se muestran todas las columnas o no
-          - si se muestra interpretación o no
-          - gestión más sofisticada de errores
-}
-\details{
-PERO LO PRIMERO es hacer que todo esto funcione suave y pueda tener toda la estadística en orden
 t_test.welch
 }

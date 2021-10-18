@@ -1,3 +1,18 @@
+#' TODO:
+#'
+#' Implementar el stop.on.error con nuevo sistema de errores
+#' Separar la parte "matematica" de la representacion y de la parte de toma de decisiones
+#'
+#' Implementar lang
+#'
+#' Redondeo y eliminación de información inutil en print, pero no en data.frame
+#'
+
+
+
+
+
+
 #' means
 #'
 #' @export
