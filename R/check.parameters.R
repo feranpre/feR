@@ -1,5 +1,6 @@
 .error.msg <- function(er="DEFAULT", lang = "es") {
   error_msg.es <- c(
+    "DEFAULT"="Error",
     "MISSING_X"="falta 'x'",
     "MISSING_BY"="falta 'by'",
     "NON_NUM_VECTOR"="vector no numérico",
@@ -30,6 +31,7 @@
   )
 
   error_msg.en <- c(
+    "DEFAULT"="Error",
     "MISSING_X"="missing x",
     "MISSING_BY"="missing by",
     "NON_NUM_VECTOR"="non-numeric vector",
@@ -38,7 +40,8 @@
     "NOT_ENOUGH_X_OBS" = "not enough 'x' observations",
     "NOT_ENOUGH_BY_OBS" = "not enough 'by' observations",
     "MISSING_CI" = "missing 'confidence interval'",
-    "CI_LIMITS" = "'confidence interval' must be a number > 0 and < 1"
+    "CI_LIMITS" = "'confidence interval' must be a number > 0 and < 1",
+    "ALTERNATIVE_T_TEST_NOT_VALID" = "an alternative hypothesis was specified that is not correct. Correct options are: 'two.sided', 'less' and 'greater'"
   )
 
   if(lang == "es") {
@@ -51,7 +54,7 @@
   }
 }
 
-.check.t_test.parameters <- function(x,by,ci, lang = "en") {
+.check.t_test.parameters <- function(x,by,ci=0.95,alternative="two.sided", lang = "en") {
 
   if(missing(x)) stop(feR:::.error.msg("MISSING_X", lang=lang))
   if(missing(by)) stop(feR:::.error.msg("MISSING_BY", lang=lang))
@@ -62,6 +65,7 @@
   if(sum(!is.na(x))<4) stop(feR:::.error.msg("NOT_ENOUGH_X_OBS", lang=lang))
   if(sum(!is.na(by))<4) stop(feR:::.error.msg("NOT_ENOUGH_BY_OBS", lang=lang))
   if(missing(ci)) stop(feR:::.error.msg("MISSING_CI", lang=lang))
+  if(!any(alternative %in% c("two.sided", "less", "greater"))) stop(feR:::.error.msg("ALTERNATIVE_T_TEST_NOT_VALID", lang=lang))
   feR:::.check.stat.parameters(ci=ci, lang = lang)
 }
 
