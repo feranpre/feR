@@ -4,6 +4,7 @@
     "MISSING_X"="falta 'x'",
     "MISSING_BY"="falta 'by'",
     "NON_NUM_VECTOR"="vector no numérico",
+    "MEAN_NOT_NUMERIC" = "'x' debe ser un vector numérico o un data.frame con al menos una variable numérica",
     "DIFF_LEN_VECTOR" = "los vectores tienen tamaños diferentes",
     "2_GROUPS" = "there must be exactly 2 groups",
     "NOT_ENOUGH_X_OBS" = "not enough 'x' observations",
@@ -20,7 +21,7 @@
 
 
 
-    "MEAN_NOT_NUMERIC" = "Se requiere un vector numérico o un data.frame con al menos una variable numérica",
+
     "MEAN_BY" = "Se ha especificado una variable de agrupación que no puede ser usada",
     "MEAN_COMP_X_MISSING" = "Falta vector de datos numéricos 'X' para comparación de medias",
     "MEAN_COMP_Y_MISSING" = "Falta vector de datos numéricos 'Y' para comparación de medias",
@@ -34,9 +35,10 @@
 
   error_msg.en <- c(
     "DEFAULT"="Error",
-    "MISSING_X"="missing x",
-    "MISSING_BY"="missing by",
+    "MISSING_X"="missing 'x'",
+    "MISSING_BY"="missing 'by'",
     "NON_NUM_VECTOR"="non-numeric vector",
+    "MEAN_NOT_NUMERIC" = "'x' must either be a numeric vector or a data.frame with at least 1 numeric vector",
     "DIFF_LEN_VECTOR" = "vectors have differente lenghts",
     "2_GROUPS" = "there must be exactly 2 groups",
     "NOT_ENOUGH_X_OBS" = "not enough 'x' observations",

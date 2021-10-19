@@ -1,3 +1,18 @@
+#' TODO:
+#'
+#' Controlar warning de normalidad (salta por pocas observaciones en KS)
+#'
+#' data <- ToothGrowth
+#' data$supp[1:2]<- NA
+#' data$len[1:5]<- NA
+#'
+#' feR::means(data, by = "supp", stop.on.error = T, lang = "es",  show.global = T)
+#'
+
+
+
+
+
 #' means
 #'
 #' @export
@@ -58,96 +73,118 @@ means.default <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
 #'
 means.numeric <- function(x, ..., xname= feR:::.var.name(deparse(substitute(x))),
                           by=NULL, byname = feR:::.var.name(deparse(substitute(by))),decimals=2,
-                 DEBUG=FALSE,
-                 show.var.name=TRUE,show.group.var=TRUE,show.group=TRUE,show.n.valid=TRUE,
-                 show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
-                 show.mean=TRUE,show.sd=TRUE,show.median=TRUE,
-                 show.IQR=TRUE, show.se = FALSE, show.ci.upper = FALSE, show.ci.lower = FALSE,
-                 show.p.norm=TRUE,show.p.norm.exact=FALSE,
-                 show.nor.test=TRUE,show.is.normal=TRUE,
-                 show.interpretation=FALSE,lang="es",show.global=TRUE,
-                 p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
-                 comp=FALSE,
-                 show.post.hoc = TRUE,
-                 show.desc=TRUE, paired = F, stop.on.error=TRUE, show.errors = TRUE){
+                          show.var.name=TRUE,show.group.var=TRUE,show.group=TRUE,show.n.valid=TRUE,
+                          show.n.missing=TRUE,show.min=TRUE,show.max=TRUE,
+                          show.mean=TRUE,show.sd=TRUE,show.median=TRUE,
+                          show.IQR=TRUE, show.se = FALSE, show.ci.upper = FALSE, show.ci.lower = FALSE,
+                          show.p.norm=TRUE,show.p.norm.exact=FALSE,
+                          show.nor.test=TRUE,show.is.normal=TRUE,
+                          show.interpretation=FALSE,lang="es",show.global=TRUE,
+                          p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = 0.95,
+                          show.desc=TRUE, paired = F, stop.on.error=TRUE, show.errors = TRUE, DEBUG=FALSE){
   if(DEBUG) cat("\n [means.numeric] START...\n")
-  #........................................................... BY .............
+
+
   has.groups = FALSE
-  if(!missing(by)) {
-    has.groups = TRUE
+  if(!missing(by)) has.groups = TRUE
+
+  #....................................................... GLOBAL MEAN (or mean if not by present)
+  res.global <- feR:::.means(x, decimals=decimals, p.sig=p.sig,
+                        p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
+                        ci=ci)
+  if(exists("res.global") && is.data.frame(res.global)) {
+    res.global$var.name = xname
+    res.global <- res.global[,c("var.name",names(res.global)[-length(names(res.global))])]
+  }
+
+  #....................................................... GROUPS
+  if(has.groups) {
     #................... format and get by.value
-    if(!is.factor(by)) {
-      by.value = as.factor(by)
-    }
+    if(!is.factor(by)) by.value = as.factor(by)
     else by.value = by
 
     #.................. split by.value by factors
     for (level in levels(by.value)){
-      res <- .means(x[by.value == level & !is.na(by.value)], decimals=decimals, p.sig=p.sig,
+      res <- feR:::.means(x[by.value == level & !is.na(by.value)], decimals=decimals, p.sig=p.sig,
                     p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
                     ci=ci)
       res$group = level
       if(exists("group.res")) group.res <- rbind(group.res, res)
       else group.res <- res
-      res <- NULL
+      # res <- NULL
     }
-    res = group.res
+
     if(sum(is.na(by.value))>0) {
-      group.res <- .means(x[is.na(by.value)], decimals=decimals, p.sig=p.sig,
+      res <- feR:::.means(x[is.na(by.value)], decimals=decimals, p.sig=p.sig,
                     p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
                     ci=ci)
-      res$group = "NA"
-      if(exists("res")) res <- rbind(res, group.res)
-      else res <- group.res
-      group.res <- NULL
+      res$group = "."
+      if(exists("group.res")) group.res <- rbind(group.res, res)
+      else group.res <- res
+    }
+    if(exists("group.res") && is.data.frame(group.res)) {
+      group.res$var.name = xname
+      group.res$group.var = byname
+      group.res <- group.res[,c("var.name","group.var","group",names(group.res)[1:(length(names(group.res))-3)])]
     }
   }
 
-  else {
-    res <- feR:::.means(x, decimals=decimals, p.sig=p.sig,
-                        p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
-                        ci=ci)
+  final.res <- res.global
+  # class(final.res) <- c("feR.means", class(final.res))
+  #......................................... RESULT FORMATION
+  if(has.groups) {
+    if(exists("group.res")) final.res <- group.res
+    else final.res <- NA
+
+    if(show.global && exists("res.global")) attr(final.res, "GLOBAL") <- feR::means(x=x, xname = xname,
+                                                                                    decimals=decimals, p.sig=p.sig,
+                                                                                    p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
+                                                                                    ci=ci,show.var.name = show.var.name,
+                                                                                    show.group.var = show.group.var,
+                                                                                    show.group = show.group,
+                                                                                    show.n.valid = show.n.valid,
+                                                                                    show.n.missing = show.n.missing,
+                                                                                    show.min = show.min,
+                                                                                    show.max = show.max,
+                                                                                    show.mean = show.mean,
+                                                                                    show.sd = show.sd,
+                                                                                    show.median = show.median,
+                                                                                    show.IQR = show.IQR,
+                                                                                    show.se = show.se,
+                                                                                    show.ci.upper = show.ci.upper,
+                                                                                    show.ci.lower = show.ci.lower,
+                                                                                    show.p.norm = show.p.norm,
+                                                                                    show.p.norm.exact = show.p.norm.exact,
+                                                                                    show.nor.test = show.nor.test,
+                                                                                    show.is.normal = show.is.normal,
+                                                                                    show.global = show.global,
+                                                                                    lang=lang, stop.on.error = stop.on.error,
+                                                                                    show.error = show.errors)
   }
 
-  if(exists("res")){
+  attr(final.res,"DECIMALS") <- decimals
+  attr(final.res,"LANG") <- lang
+  final.res <- feR:::.means.show.attr(final.res,show.var.name = show.var.name,
+                          show.group.var = show.group.var,
+                          show.group = show.group,
+                          show.n.valid = show.n.valid,
+                          show.n.missing = show.n.missing,
+                          show.min = show.min,
+                          show.max = show.max,
+                          show.mean = show.mean,
+                          show.sd = show.sd,
+                          show.median = show.median,
+                          show.IQR = show.IQR,
+                          show.se = show.se,
+                          show.ci.upper = show.ci.upper,
+                          show.ci.lower = show.ci.lower,
+                          show.p.norm = show.p.norm,
+                          show.p.norm.exact = show.p.norm.exact,
+                          show.nor.test = show.nor.test,
+                          show.is.normal = show.is.normal,
+                          show.global = show.global)
 
-    res$var.name[1] <- xname
-    if(has.groups) {
-      res$group.var[1] = byname
-      res <- res[,c("var.name","group.var","group",names(res)[1:(length(names(res))-3)])]
-    }
-    else res <- res[,c("var.name",names(res)[-length(names(res))])]
-
-    class(res) <- c("feR.means", class(res))
-    attr(res,"DECIMALS") <- decimals
-    attr(res,"LANG") <- lang
-    if(has.groups && show.global) attr(res,"GLOBAL") <- feR:::means(x, xname = xname, decimals=decimals, p.sig=p.sig,
-                                                         p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
-                                                         ci=ci)
-    res <- feR:::.means.show.attr(res,show.var.name = show.var.name,
-                            show.group.var = show.group.var,
-                            show.group = show.group,
-                            show.n.valid = show.n.valid,
-                            show.n.missing = show.n.missing,
-                            show.min = show.min,
-                            show.max = show.max,
-                            show.mean = show.mean,
-                            show.sd = show.sd,
-                            show.median = show.median,
-                            show.IQR = show.IQR,
-                            show.se = show.se,
-                            show.ci.upper = show.ci.upper,
-                            show.ci.lower = show.ci.lower,
-                            show.p.norm = show.p.norm,
-                            show.p.norm.exact = show.p.norm.exact,
-                            show.nor.test = show.nor.test,
-                            show.is.normal = show.is.normal,
-                            show.global = show.global)
-
-    return(res)
-
-  } else return(NA)
-
+  return(final.res)
 }
 
 
@@ -174,12 +211,11 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
 
   if(DEBUG) cat("\n [means.data.frame] START...\n")
   x.data.frame <- x
-  x <- NULL
   num.var.exists <- FALSE
 
   #.... checking if there is a by and if its a vector or a data.frame
-  found.by <- !missing(by)
-  if(found.by) {
+  has.groups <- !missing(by)
+  if(has.groups) {
     #... by is a vector
     if(length(by) == nrow(x.data.frame)) {
       by.data = as.data.frame(by)
@@ -188,9 +224,10 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
     #... is not a vector, lets check for var names
     else {
       if(any(by %in% names(x.data.frame))) {
-        by.names <- by[by %in% names(x.data.frame)]
+        by.names <- names(x.data.frame)[names(x.data.frame) %in% by]
         by.data <- as.data.frame(x.data.frame[,by.names])
         names(by.data) <- by.names
+        x.data.frame <- x.data.frame[,names(x.data.frame)[!(names(x.data.frame) %in% by.names)]]
       }
       else {
         e <- feR:::.error.msg("MEAN_BY", lang = lang)
@@ -201,91 +238,141 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
     }
   }
 
-    #.... checking if there are var names in ...
+  #.... checking if there are var names in ...
+  if(!missing(...)){
     parametros <- unlist(list(...))
-    # print(parametros)
+
     param.all <- all(parametros %in% names(x.data.frame))
     if(param.all) {
       x.data.frame <- x.data.frame[,parametros]
     }
+  }
 
+  for(var in names(x.data.frame)) {
+    x <-  dplyr::pull(x.data.frame, var)
+    if(is.numeric(x)) {
+      if(has.groups){
+            for(by.name in names(by.data)) {
 
-    for(var in names(x.data.frame)) {
-      x <-  dplyr::pull(x.data.frame, var)
-      if(is.numeric(x)) {
-        if(found.by){
-              for(by.name in names(by.data)) {
-                # print(by.name)
-                by.value <- dplyr::pull(by.data, by.name)
-                by.res <- feR::means(x, xname = var, by = by.value, byname = by.name, show.global = show.global)
-                if(!exists("res")) res <- by.res
-                else res <- rbind(res, by.res)
-              }
-              # if(show.global) attr(res,"GLOBAL") <- eR::means(x, xname = var, show.global = show.global)
-        }
-        #... no by
-        else res <- feR::means(x, xname = var, from.data.frame = TRUE)
-
-        if(!exists("final.res")) final.res <- as.data.frame(res)
-        else final.res <- rbind(final.res, res)
-        res <- NULL
-        num.var.exists <- TRUE
+              by.value <- dplyr::pull(by.data, by.name)
+              by.res <- feR::means(x, xname = var,
+                                   by = by.value, byname = feR:::.var.name(by.name),
+                                   decimals=decimals, p.sig=p.sig,
+                                   p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
+                                   ci=ci,show.var.name = show.var.name,
+                                   show.group.var = show.group.var,
+                                   show.group = show.group,
+                                   show.n.valid = show.n.valid,
+                                   show.n.missing = show.n.missing,
+                                   show.min = show.min,
+                                   show.max = show.max,
+                                   show.mean = show.mean,
+                                   show.sd = show.sd,
+                                   show.median = show.median,
+                                   show.IQR = show.IQR,
+                                   show.se = show.se,
+                                   show.ci.upper = show.ci.upper,
+                                   show.ci.lower = show.ci.lower,
+                                   show.p.norm = show.p.norm,
+                                   show.p.norm.exact = show.p.norm.exact,
+                                   show.nor.test = show.nor.test,
+                                   show.is.normal = show.is.normal,
+                                   show.global = show.global,
+                                   lang=lang, stop.on.error = stop.on.error,
+                                   show.error = show.errors)
+              if(!exists("res")) res <- by.res
+              else res <- rbind(res, by.res)
+            }
+            # if(show.global) attr(res,"GLOBAL") <- eR::means(x, xname = var, show.global = show.global)
       }
+      #... no by
+      else res <- feR::means(x, xname = var, decimals=decimals, p.sig=p.sig,
+                             p.sig.small=p.sig.small, p.sig.very.small=p.sig.very.small,
+                             ci=ci,show.var.name = show.var.name,
+                             show.group.var = show.group.var,
+                             show.group = show.group,
+                             show.n.valid = show.n.valid,
+                             show.n.missing = show.n.missing,
+                             show.min = show.min,
+                             show.max = show.max,
+                             show.mean = show.mean,
+                             show.sd = show.sd,
+                             show.median = show.median,
+                             show.IQR = show.IQR,
+                             show.se = show.se,
+                             show.ci.upper = show.ci.upper,
+                             show.ci.lower = show.ci.lower,
+                             show.p.norm = show.p.norm,
+                             show.p.norm.exact = show.p.norm.exact,
+                             show.nor.test = show.nor.test,
+                             show.is.normal = show.is.normal,
+                             show.global = show.global,
+                             lang=lang, stop.on.error = stop.on.error,
+                             show.error = show.errors)
+
+      if(!exists("final.res")) final.res <- res
+      else final.res <- rbind(final.res, res)
+      res <- NULL
+      num.var.exists <- TRUE
     }
+  }
 
-    if(num.var.exists) {
-      if(!exists("final.res"))  return(NA)
-      else {
-        attr(final.res,"DECIMALS") <- decimals
-        attr(final.res,"LANG") <- lang
-
-        class(final.res) <- c("feR.means", class(final.res))
-        final.res <- feR:::.means.show.attr(final.res,show.var.name = show.var.name,
-                                show.group.var = show.group.var,
-                                show.group = show.group,
-                                show.n.valid = show.n.valid,
-                                show.n.missing = show.n.missing,
-                                show.min = show.min,
-                                show.max = show.max,
-                                show.mean = show.mean,
-                                show.sd = show.sd,
-                                show.median = show.median,
-                                show.IQR = show.IQR,
-                                show.se = show.se,
-                                show.ci.upper = show.ci.upper,
-                                show.ci.lower = show.ci.lower,
-                                show.p.norm = show.p.norm,
-                                show.p.norm.exact = show.p.norm.exact,
-                                show.nor.test = show.nor.test,
-                                show.is.normal = show.is.normal,
-                                show.global = show.global)
-        return(final.res)
-      }
-  } else {
-    e <- feR:::.error.msg("MEAN_NOT_NUMERIC", lang = lang, stop.on.error = stop.on.error)
+  if(!num.var.exists) {
+    e <- feR:::.error.msg("MEAN_NOT_NUMERIC", lang = lang)
     if(stop.on.error) stop(e)
     else if (show.errors) message(e)
     return(NA)
+  }
+  else {
+    #.................................... at least there is one numeric variable
+    if(!exists("final.res")) return(NA)
+    else {
+      attr(final.res,"DECIMALS") <- decimals
+      attr(final.res,"LANG") <- lang
+
+      # class(final.res) <- c("feR.means", class(final.res))
+      final.res <- feR:::.means.show.attr(final.res,show.var.name = show.var.name,
+                              show.group.var = show.group.var,
+                              show.group = show.group,
+                              show.n.valid = show.n.valid,
+                              show.n.missing = show.n.missing,
+                              show.min = show.min,
+                              show.max = show.max,
+                              show.mean = show.mean,
+                              show.sd = show.sd,
+                              show.median = show.median,
+                              show.IQR = show.IQR,
+                              show.se = show.se,
+                              show.ci.upper = show.ci.upper,
+                              show.ci.lower = show.ci.lower,
+                              show.p.norm = show.p.norm,
+                              show.p.norm.exact = show.p.norm.exact,
+                              show.nor.test = show.nor.test,
+                              show.is.normal = show.is.normal,
+                              show.global = show.global)
+      return(final.res)
+    }
   }
 }
 
 
 
 
-.means <- function(x, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = .95, ...) {
+.means <- function(x, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = .95, ...) {
 
   n.missing = sum(is.na(x))
   n.valid = length(x) - n.missing
   x.normal = feR:::.normal(x, n.valid=n.valid)
 
+
+  min = ifelse(n.valid > 1, min(x, na.rm = TRUE), NA)
+  max = ifelse(n.valid > 1, max(x, na.rm = TRUE), NA)
+  mean = ifelse(n.valid > 1, mean(x, na.rm = TRUE), NA)
+  sd = ifelse(n.valid > 1, sd(x, na.rm = TRUE), NA)
+  median = ifelse(n.valid > 1, median(x, na.rm = TRUE), NA)
+  IQR = ifelse(n.valid > 1, IQR(x, na.rm = TRUE), NA)
+  se <- ifelse(n.valid > 1, sd(x, na.rm = TRUE)/sqrt(n.valid), NA)
   if (n.valid > 1) {
-    min = min(x, na.rm = TRUE)
-    max = max(x, na.rm = TRUE)
-    mean = round(mean(x, na.rm = TRUE))
-    sd = round(sd(x, na.rm = TRUE))
-    median = median(x, na.rm = TRUE)
-    IQR = IQR(x, na.rm = TRUE)
-    se <- sd(x, na.rm = TRUE)/sqrt(n.valid)
     alpha_2 <- ci+((1-ci)/2)
     if(x.normal$is.normal){
       error <- qnorm(alpha_2)*se
@@ -294,23 +381,11 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
     }
     ci.upper <- mean + error
     ci.lower <- mean - error
-
-
-  } else {
-    min = NA
-    max = NA
-    mean = NA
-    sd = NA
-    median = NA
-    IQR = NA
-    se = NA
+  }
+  else {
     ci.upper = NA
     ci.lower = NA
   }
-
-
-
-
 
   result <- data.frame("n.valid" = n.valid,
                        "n.missing" = n.missing,
@@ -383,6 +458,12 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
 #'
 #' @export
 print.feR.means <- function(x) {
+  lang = attr(x,"LANG")
+
+  caption.y <- ifelse(lang== "es"," y ", " & ")
+  caption.by <- ifelse(lang== "es"," en función de ", " by ")
+  caption.mean <- ifelse(lang == "es","Media de", "Mean of")
+
   decimals <- attr(x,"DECIMALS")
 
   show.var.name = attr(x,"SHOW.VAR.NAME")
@@ -405,26 +486,26 @@ print.feR.means <- function(x) {
   show.is.normal = attr(x,"SHOW.IS.NORMAL")
   show.global = attr(x,"SHOW.GLOBAL")
 
+
+  if(!is.null(x$group.var) && (show.global) )   print(attr(x,"GLOBAL"))
+
   #............................ first caption and global......
-  caption = ""
+
   cont = 1
   for (vn in unique(x$var.name)) {
     if(cont == 1) caption = vn
-    else caption <- paste(caption, ifelse(cont == unique(x$var.name),"&",","), vn)
+    else caption <- paste0(caption, ifelse(cont == length(unique(x$var.name)),caption.y,", "), vn)
     cont = cont + 1
   }
+
   if(!is.null(x$group.var)) {
-    if(show.global) {
-      print(attr(x,"GLOBAL"))
-    }
-    caption <- paste(caption, "by")
+    caption <- paste0(caption, caption.by)
     cont = 1
     for (vn in unique(x$group.var)) {
-      if(cont == 1) caption <- paste(caption, vn)
-      else caption <- paste(caption, ifelse(cont == length(x$var.name),"&",","), vn)
+      if(cont == 1) caption <- paste0(caption, vn)
+      else caption <- paste0(caption, ifelse(cont == length(x$var.name),caption.y,", "), vn)
       cont = cont + 1
     }
-
   }
 
   #......................... Limiting columns and rounding .........
@@ -461,7 +542,23 @@ print.feR.means <- function(x) {
 
 
   x <- feR:::.clean.table.var.names(x)
-  print(knitr::kable(x, caption = paste("Mean of",caption)))
+  if(lang == "es") {
+    names(x)[names(x) == "var.name"] <- "var"
+    names(x)[names(x) == "group.var"] <- "var.grupo"
+    names(x)[names(x) == "group"] <- "grupos"
+    names(x)[names(x) == "n.valid"] <- "n.validos"
+    names(x)[names(x) == "n.missing"] <- "n.perdidos"
+    names(x)[names(x) == "min"] <- "min"
+    names(x)[names(x) == "max"] <- "max"
+    names(x)[names(x) == "mean"] <- "media"
+    names(x)[names(x) == "sd"] <- "desv.est"
+    names(x)[names(x) == "median"] <- "mediana"
+    names(x)[names(x) == "IQR"] <- "RIQ"
+    names(x)[names(x) == "p.norm"] <- "p.norm"
+    names(x)[names(x) == "nor.test "] <- "test.norm"
+    names(x)[names(x) == "is.normal"] <- "es.normal"
+  }
+  print(knitr::kable(x, caption = paste(caption.mean,caption)))
 }
 
 
