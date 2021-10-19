@@ -14,7 +14,9 @@
   p.sig.very.small = 0.001,
   ci = 0.95,
   decimals = 2,
-  DEBUG = FALSE
+  DEBUG = FALSE,
+  lang = "es",
+  stop.on.error = TRUE
 )
 }
 \description{

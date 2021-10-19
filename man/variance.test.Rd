@@ -2,7 +2,7 @@
 % Please edit documentation in R/variance.test.R
 \name{variance.test}
 \alias{variance.test}
-\title{variance.test}
+\title{TODO:}
 \usage{
 variance.test(
   x,
@@ -32,5 +32,11 @@ variance.test(
 )
 }
 \description{
+Implementar el stop.on.error
+Implementar lang
+}
+\details{
+Redondeo y eliminación de información inutil en print, pero no en data.frame
+
 variance.test
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mean.R
 \name{means}
 \alias{means}
-\title{means}
+\title{TODO:}
 \usage{
 means(
   x,
@@ -45,5 +45,13 @@ means(
 )
 }
 \description{
+Implementar el stop.on.error con nuevo sistema de errores
+Separar la parte "matematica" de la representacion y de la parte de toma de decisiones
+}
+\details{
+Implementar lang
+
+Redondeo y eliminación de información inutil en print, pero no en data.frame
+
 means
 }

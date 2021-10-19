@@ -28,17 +28,19 @@ variance.test <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
                        show.p.value.exact = TRUE,
                        show.p.value = TRUE,
                        show.p.symbols = TRUE,
-                       show.estimate = TRUE, lang = "es", stop.on.error=TRUE
+                       show.estimate = TRUE, lang = "es", stop.on.error=TRUE, show.error = TRUE
                        ){
 
   if(missing(x)) {
-    feR:::.error.msg(er="VARIANCE_TEST_X_MISSING", lang=lang, stop.on.error = stop.on.error)
+    if(stop.on.error) stop(feR:::.error.msg(er="VARIANCE_TEST_X_MISSING", lang=lang))
+    else if (show.error) message(feR:::.error.msg(er="VARIANCE_TEST_X_MISSING", lang=lang))
     return(NA)
   }
 
  if (missing(by)) {
-    feR:::.error.msg(er="VARIANCE_TEST_BY_MISSING", lang=lang, stop.on.error = stop.on.error)
-    return(NA)
+   if(stop.on.error) stop(feR:::.error.msg(er="VARIANCE_TEST_BY_MISSING", lang=lang))
+   else if (show.error) message(feR:::.error.msg(er="VARIANCE_TEST_BY_MISSING", lang=lang))
+   return(NA)
   }
 
   UseMethod("variance.test")
@@ -76,8 +78,10 @@ variance.test.numeric <- function(x, xname=  feR:::.var.name(deparse(substitute(
   x.variance$p.value <- var.test.p
   x.variance$homocedasticity <- var.test.p < p.sig
 
-  class(x.variance) <- append("feR.variance.test",class(x.variance))
+  class(x.variance) <- append("feR.variance.test","data.frame")
   attr(x.variance, "TEST") <- "Levene"
+  attr(x.variance, "DECIMALS") <- decimals
+  attr(x.variance, "LANG") <- lang
 
   return(x.variance)
 }
@@ -90,8 +94,5 @@ variance.test.numeric <- function(x, xname=  feR:::.var.name(deparse(substitute(
 #'
 #' @export
 print.feR.variance.test <- function(x){
-
-
-  print(knitr::kable(x))
-
+  print(knitr::kable(x, caption = paste("Homocedasticity test of",x$var.name[1],"by",x$group.var[1])))
 }
