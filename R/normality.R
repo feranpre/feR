@@ -1,24 +1,47 @@
-
-
-.normal <- function(x, n.valid = NULL, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001) {
+#' normal.test
+#'
+#' @export
+normal.test <- function(x, n.valid = NULL, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
+                        stop.on.error = TRUE, show.error = TRUE) {
 
   if (is.null(n.valid)) n.valid = length(x) - sum(is.na(x))
 
   nor.test.error = FALSE
   if (n.valid > 3 & n.valid < 5000) {
-    norm = shapiro.test(x)
+    norm = tryCatch(shapiro.test(x),
+                    error = function(e) {
+                      if(stop.on.error) stop(e)
+                      else {
+                        if (show.errors) message(e)
+                        return(NA)
+                      }
+                    })
     nor.test = "SW"
   }
   else if (n.valid > 4) {
-    norm = nortest::lillie.test(x)
+    norm = tryCatch(nortest::lillie.test(x),
+                error = function(e) {
+                              if(stop.on.error) stop(e)
+                              else {
+                                if (show.errors) message(e)
+                                return(NA)
+                              }
+                            })
     nor.test = "Lillie (KS)"
-  } else if (n.valid > 0) {
-    norm = ks.test(x, "pnorm")
-    nor.test = "KS"
+  # } else if (n.valid > 0) {
+  #   norm = tryCatch(ks.test(x, "pnorm"),
+  #                     error = function(e) {
+  #                       if(stop.on.error) stop(e)
+  #                       else {
+  #                         if (show.errors) message(e)
+  #                         return(NA)
+  #                       }
+  #                     })
+  #   nor.test = "KS"
   } else {
     p.norm.exact = NA
     norm.stat = NA
-    nor.test = "Cant be done"
+    nor.test = "n too low"
     nor.test.error =TRUE
   }
 
@@ -28,7 +51,7 @@
   }
 
   if (!nor.test.error) is.normal = p.norm.exact > p.sig
-  else is.normal = FALSE
+  else is.normal = NA
   is.normal <- data.frame(is.normal = is.normal)
   is.normal$p.exact.value = p.norm.exact
   is.normal$test = nor.test

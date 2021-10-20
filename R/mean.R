@@ -2,11 +2,11 @@
 #'
 #' Controlar warning de normalidad (salta por pocas observaciones en KS)
 #'
-#' data <- ToothGrowth
-#' data$supp[1:2]<- NA
-#' data$len[1:5]<- NA
+#' df <- ToothGrowth
+#' df$supp[1:2]<- NA
+#' df$len[1:5]<- NA
 #'
-#' feR::means(data, by = "supp", stop.on.error = T, lang = "es",  show.global = T)
+#' feR::means(df, by = "supp", stop.on.error = T, lang = "es",  show.global = T)
 #'
 
 
@@ -248,7 +248,7 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
     }
   }
 
-  for(var in names(x.data.frame)) {
+  for(var in names(x.data.frame)){
     x <-  dplyr::pull(x.data.frame, var)
     if(is.numeric(x)) {
       if(has.groups){
@@ -282,6 +282,7 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
                                    show.error = show.errors)
               if(!exists("res")) res <- by.res
               else res <- rbind(res, by.res)
+
             }
             # if(show.global) attr(res,"GLOBAL") <- eR::means(x, xname = var, show.global = show.global)
       }
@@ -311,7 +312,10 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
                              show.error = show.errors)
 
       if(!exists("final.res")) final.res <- res
-      else final.res <- rbind(final.res, res)
+      else {
+        final.res <- rbind(final.res, res)
+        if(!is.null(attr(final.res,"GLOBAL"))) attr(final.res,"GLOBAL")[[length(attr(final.res,"GLOBAL"))]] <- attr(res,"GLOBAL")
+      }
       res <- NULL
       num.var.exists <- TRUE
     }
@@ -362,7 +366,7 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
 
   n.missing = sum(is.na(x))
   n.valid = length(x) - n.missing
-  x.normal = feR:::.normal(x, n.valid=n.valid)
+  x.normal = feR:::normal.test(x, n.valid=n.valid)
 
 
   min = ifelse(n.valid > 1, min(x, na.rm = TRUE), NA)
@@ -374,7 +378,7 @@ means.data.frame <- function(x, ..., xname= deparse(substitute(x)),by=NULL, byna
   se <- ifelse(n.valid > 1, sd(x, na.rm = TRUE)/sqrt(n.valid), NA)
   if (n.valid > 1) {
     alpha_2 <- ci+((1-ci)/2)
-    if(x.normal$is.normal){
+    if(!is.na(x.normal$is.normal) && (x.normal$is.normal)){
       error <- qnorm(alpha_2)*se
     } else {
       error <- qt(alpha_2, df=n.valid -1)*se
