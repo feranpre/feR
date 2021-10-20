@@ -491,7 +491,12 @@ print.feR.means <- function(x) {
   show.global = attr(x,"SHOW.GLOBAL")
 
 
-  if(!is.null(x$group.var) && (show.global) )   print(attr(x,"GLOBAL"))
+  if(!is.null(x$group.var) && (show.global) ) {
+    global <- attr(x,"GLOBAL")
+    if(lang != attr(global, "LANG")) attr(global,"LANG") <- lang
+    if(decimals != attr(global, "DECIMALS")) attr(global,"DECIMALS") <- decimals
+    print(global)
+  }
 
   #............................ first caption and global......
 
