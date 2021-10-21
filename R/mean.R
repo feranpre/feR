@@ -194,7 +194,7 @@ means.numeric <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
   if(!has.groups){
     if(DEBUG) cat("\n [means.numeric] No groups detected\n")
     #....................................................... GLOBAL MEAN (or mean if not by present)
-    final.res <- feR:::.means(x, decimals=decimals, ci=ci)
+    final.res <- feR:::means_desc(x, decimals=decimals, ci=ci)
 
     if(!exists("final.res") | (exists("final.res") && !is.data.frame(final.res))) return(NA) #... if globan means could not be calculated there's no reason to follow
     else {
@@ -221,7 +221,7 @@ means.numeric <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
     for(by.var in names(by.data)){
       by.value <- as.factor(dplyr::pull(by.data, by.var))
       for (level in levels(by.value)){
-        res <- feR:::.means(x[by.value == level & !is.na(by.value)], decimals=decimals, ci=ci)
+        res <- feR:::means_desc(x[by.value == level & !is.na(by.value)], decimals=decimals, ci=ci)
         res$group = level
         if(exists("group.res")) group.res <- rbind(group.res, res)
         else group.res <- res
@@ -231,7 +231,7 @@ means.numeric <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
     }
 
     if(sum(is.na(by.value))>0) {
-      res <- feR:::.means(x[is.na(by.value)], decimals=decimals, ci=ci)
+      res <- feR:::means_desc(x[is.na(by.value)], decimals=decimals, ci=ci)
       res$group = "."
       if(exists("group.res")) group.res <- rbind(group.res, res)
       else group.res <- res
@@ -341,57 +341,6 @@ means.data.frame <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(
 }
 
 
-
-.means <- function(x, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001, ci = .95, ...) {
-
-  n.missing = sum(is.na(x))
-  n.valid = length(x) - n.missing
-  x.normal = feR:::normal.test(x, n.valid=n.valid)
-
-
-  min = ifelse(n.valid > 1, min(x, na.rm = TRUE), NA)
-  max = ifelse(n.valid > 1, max(x, na.rm = TRUE), NA)
-  mean = ifelse(n.valid > 1, mean(x, na.rm = TRUE), NA)
-  sd = ifelse(n.valid > 1, sd(x, na.rm = TRUE), NA)
-  median = ifelse(n.valid > 1, median(x, na.rm = TRUE), NA)
-  IQR = ifelse(n.valid > 1, IQR(x, na.rm = TRUE), NA)
-  se <- ifelse(n.valid > 1, sd(x, na.rm = TRUE)/sqrt(n.valid), NA)
-  if (n.valid > 1) {
-    alpha_2 <- ci+((1-ci)/2)
-    if(!is.na(x.normal$is.normal) && (x.normal$is.normal)){
-      error <- qnorm(alpha_2)*se
-    } else {
-      error <- qt(alpha_2, df=n.valid -1)*se
-    }
-    ci.upper <- mean + error
-    ci.lower <- mean - error
-  }
-  else {
-    ci.upper = NA
-    ci.lower = NA
-  }
-
-  result <- data.frame("n.valid" = n.valid,
-                       "n.missing" = n.missing,
-                       "min" = min,
-                       "max" = max,
-                       "mean" = mean,
-                       "sd" = sd,
-                       "median" = median,
-                       "IQR" = IQR,
-                       "se" = se,
-                       "ci.upper" = ci.upper,
-                       "ci.lower" = ci.lower,
-                       "p.norm" = x.normal$p.value,
-                       "p.norm.exact" = x.normal$p.exact.value,
-                       "nor.test" = x.normal$test,
-                       "is.normal" =  x.normal$is.normal)
-
-
-  # class(result) <- append("feR.means",class(result))
-
-  return(result)
-}
 
 
 
