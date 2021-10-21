@@ -108,6 +108,18 @@ media <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
     else n = length(x)
 
     #---- form data.frame with vectors if provided
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    # ARREGLAR LO DEL NOMBRE O DEJARLO CORRER Y NO PERMITIR VECTORES EXTRA EN ...
+    #
+    # feR::media(data,"len",data$len+10, by = "supp", stop.on.error = T, lang = "en",  show.global = T, comp = TRUE, show.help = F, DEBUG =T)
+    #
+    #
     parametros <- list(...)
     param.names <- gsub("list(","",substitute(list(...)), fixed = TRUE)
     print(param.names)
