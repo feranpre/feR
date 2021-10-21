@@ -11,7 +11,8 @@ wilcoxon_test(
   byname = feR:::.var.name(deparse(substitute(by))),
   ci = 0.95,
   alternative = "two.sided",
-  stop.on.error = FALSE,
+  stop.on.error = TRUE,
+  show.error = TRUE,
   lang = "es",
   decimals = 2
 )

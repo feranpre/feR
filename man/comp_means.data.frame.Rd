@@ -11,13 +11,19 @@
   byname = feR:::.var.name(deparse(substitute(by))),
   ci = 0.95,
   alternative = "two.sided",
-  stop.on.error = FALSE,
   lang = "es",
   decimals = 2,
   method = "auto",
   paired = FALSE,
+  p.sig = 0.05,
+  p.sig.small = 0.01,
+  p.sig.very.small = 0.001,
   show.descriptives = TRUE,
-  show.variance = TRUE
+  show.variance = TRUE,
+  DEBUG = FALSE,
+  stop.on.error = TRUE,
+  show.error = TRUE,
+  ...
 )
 }
 \description{

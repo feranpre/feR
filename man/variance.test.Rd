@@ -28,7 +28,8 @@ variance.test(
   show.p.symbols = TRUE,
   show.estimate = TRUE,
   lang = "es",
-  stop.on.error = TRUE
+  stop.on.error = TRUE,
+  show.error = TRUE
 )
 }
 \description{

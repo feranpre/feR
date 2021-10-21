@@ -16,8 +16,15 @@
   decimals = 2,
   method = "auto",
   paired = FALSE,
+  p.sig = 0.05,
+  p.sig.small = 0.01,
+  p.sig.very.small = 0.001,
   show.descriptives = TRUE,
-  show.variance = TRUE
+  show.variance = TRUE,
+  stop.on.errors = TRUE,
+  show.error = TRUE,
+  DEBUG = FALSE,
+  ...
 )
 }
 \description{

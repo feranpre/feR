@@ -2,7 +2,7 @@
 % Please edit documentation in R/mean.R
 \name{means}
 \alias{means}
-\title{TODO:}
+\title{means}
 \usage{
 means(
   x,
@@ -11,47 +11,13 @@ means(
   by = NULL,
   byname = feR:::.var.name(deparse(substitute(by))),
   decimals = 2,
-  DEBUG = FALSE,
-  show.vars = TRUE,
-  show.by = TRUE,
-  show.groups = TRUE,
-  show.n.valid = TRUE,
-  show.n.missing = TRUE,
-  show.min = TRUE,
-  show.max = TRUE,
-  show.mean = TRUE,
-  show.sd = TRUE,
-  show.median = TRUE,
-  show.IRQ = TRUE,
-  show.se = FALSE,
-  show.ci.upper = FALSE,
-  show.ci.lower = FALSE,
-  show.p.norm = TRUE,
-  show.p.norm.exact = FALSE,
-  show.nor.test = TRUE,
-  show.is.normal = TRUE,
-  show.interpretation = FALSE,
-  lang = "es",
-  show.global = TRUE,
-  p.sig = 0.05,
-  p.sig.small = 0.01,
-  p.sig.very.small = 0.001,
   ci = 0.95,
-  comp = FALSE,
-  show.post.hoc = TRUE,
-  show.desc = TRUE,
-  paired = T,
-  stop.on.error = FALSE
+  DEBUG = FALSE,
+  stop.on.error = TRUE,
+  show.errors = TRUE,
+  lang = "es"
 )
 }
 \description{
-Implementar el stop.on.error con nuevo sistema de errores
-Separar la parte "matematica" de la representacion y de la parte de toma de decisiones
-}
-\details{
-Implementar lang
-
-Redondeo y eliminación de información inutil en print, pero no en data.frame
-
 means
 }

@@ -12,7 +12,7 @@ comp_means <- function(x,xname=NULL,
                        show.variance = TRUE,
                        stop.on.error = TRUE, show.error = TRUE,
                        lang = "es",
-                       DEBUG=FALSE) {
+                       DEBUG=FALSE,...) {
 
   if(missing(x)) {
     if(stop.on.error) stop(feR:::.error.msg(er="MISSING_X", lang=lang))
@@ -44,7 +44,7 @@ comp_means.numeric <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
                                show.descriptives = TRUE,
                                show.variance = TRUE,
                                stop.on.errors = TRUE, show.error = TRUE,
-                               DEBUG=FALSE) {
+                               DEBUG=FALSE,...) {
 
   tryCatch(feR:::.check.comp_means.parameters(x=x,by=by,ci=ci,alternative=alternative,lang=lang, method=method),
            error = function(e) {
@@ -112,7 +112,8 @@ comp_means.data.frame <- function(x,xname=feR:::.var.name(deparse(substitute(x))
                                p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
                                show.descriptives = TRUE,
                                show.variance = TRUE,
-                               DEBUG=FALSE, stop.on.error = TRUE, show.error = TRUE) {
+                               DEBUG=FALSE, stop.on.error = TRUE,
+                               show.error = TRUE,...) {
 
   if(!paired) {
     for(var in names(x)) {
