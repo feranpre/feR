@@ -100,6 +100,82 @@ media <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
     else if (show.error) message(feR:::.error.msg(er="MISSING_X", lang=lang))
     return(NA)
   }
+
+
+  #.... checking if there are var names in ...
+  if(!missing(...)){
+    if(is.data.frame(x)) n = nrow(x)
+    else n = length(x)
+
+    #---- form data.frame with vectors if provided
+    parametros <- list(...)
+    param.names <- gsub("list(","",substitute(list(...)), fixed = TRUE)
+    print(param.names)
+    for (p in parametros){
+      if (DEBUG) cat("\nPARAMETRO:", p,"\n")
+      if (length(p) == n) {
+        if (!exists("p.data")) {
+          p.data <- as.data.frame(p)
+          names(p.data) <- substitute(p)
+        }
+        else {
+          p.data <- cbind(p.data,p)
+          names(p.data)[ncol(p.data)] <- deparse(substitute(p))
+        }
+      }
+    } #--- vector check done
+
+
+
+    #........ at this point 'p.data' has all the information required, but we cannot
+    #         merge it with 'x' because 'x' can have EXCESS information.
+    #
+    #         If it was a data.frame ... could have the variables of interest
+    #         and we could take the rest out, BUT
+    #         that must take into consideration the possibility of BY having
+    #         variable names
+
+
+    #...... Check if '...' has column names of the 'x' data.frame. Therefore 'x' MUST be a data.frame
+    if(is.data.frame(x)) {
+      parametros <- unlist(list(...))
+      param.any <- any(parametros %in% names(x))
+
+      if(DEBUG) cat("\n Parameters found?:",param.any,"\n")
+
+      if(param.any) {
+        col.names <- parametros[parametros %in% names(x)]
+        if(DEBUG) cat("\n Parameters found:",col.names,"\n")
+        x.data <- as.data.frame(x[,col.names])
+        names(x.data) <- col.names
+        if(DEBUG) print(x.data)
+      }
+
+      #... by could have the same thing... column names...
+      by.any <- any(by %in% names(x))
+      if(DEBUG) cat("\n BY Parameters found?:",param.any,"\n")
+      if(by.any) {
+        if(length(by) == 1) col.names = by
+        else col.names <- by[by.any %in% names(x)]
+        if(DEBUG) cat("\n BY Parameters found:",col.names,"\n")
+        by <- as.data.frame(x[,col.names])
+        names(by) <- col.names
+        byname <- col.names
+        if(DEBUG) print(by)
+      }
+    } else if(is.numeric(x)) {
+      x.data <- as.data.frame(x)
+      names(x.data) <- xname
+    }
+
+    if(exists("x.data")) {
+      if(exists("p.data")) x <- cbind(x,p.data)
+      else if(ncol(x.data) > 1 || is.data.frame(x)) x <- x.data
+      #... if it was just a numeric vector we leave it as that
+    }
+  }
+
+  print(x)
   if (missing(by) | show.global) x.mean <- feR::means(x=x, ..., xname = xname, decimals = decimals, ci = ci,
                                               DEBUG=DEBUG,stop.on.error=stop.on.error, show.errors = show.errors, lang = lang)
 
@@ -294,20 +370,7 @@ means.data.frame <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(
 
   }
 
-  #.... checking if there are var names in ...
-  if(!missing(...)){
-    parametros <- unlist(list(...))
-    param.all <- all(parametros %in% names(x.data.frame))
-    if(param.all) {
-      x.data.frame <- as.data.frame(x.data.frame[,parametros])
-      names(x.data.frame) <- parametros
-    }
-    else {
-      if (stop.on.error) stop(feR:::.error.msg("X_VAR_NOT_IN_DF", lang=lang))
-      else if (show.errors) message(feR:::.error.msg("X_VAR_NOT_IN_DF", lang=lang))
-      return(NA)
-    }
-  }
+
 
   for(var in names(x.data.frame)){
     x <-  dplyr::pull(x.data.frame, var)
