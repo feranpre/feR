@@ -1,18 +1,14 @@
+#'
+#' @author Fernando Andres-Pretel
+#'
+
+
+
+
 # TODO:
 #
-# Controlar warning de normalidad (salta por pocas observaciones en KS)
-#
-# df <- ToothGrowth
-# df$supp[1:2]<- NA
-# df$len[1:5]<- NA
-#
-# feR::means(df, by = "supp", stop.on.error = T, lang = "es",  show.global = T)
-#
-#
-#
-# TODO:
-#
-# Terminar los test
+# - Think more tests
+# - Finish documentation
 #
 
 
@@ -102,92 +98,107 @@ media <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
   }
 
 
+  x.is.df <- is.data.frame(x)
+  if(is.data.frame(x)) n = nrow(x)
+  else n = length(x)
+
   #.... checking if there are var names in ...
   if(!missing(...)){
-    if(is.data.frame(x)) n = nrow(x)
-    else n = length(x)
+
 
     #---- form data.frame with vectors if provided
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    # ARREGLAR LO DEL NOMBRE O DEJARLO CORRER Y NO PERMITIR VECTORES EXTRA EN ...
-    #
-    # feR::media(data,"len",data$len+10, by = "supp", stop.on.error = T, lang = "en",  show.global = T, comp = TRUE, show.help = F, DEBUG =T)
-    #
-    #
+
     parametros <- list(...)
-    param.names <- gsub("list(","",substitute(list(...)), fixed = TRUE)
-    print(param.names)
+    param.names <- feR:::.get.ellipsis.names(...)
+    if(DEBUG) cat("\n[media] Parameters provided in the ellipsis (...):",print(param.names),"\n")
+
+    cont = 1
+    vars.selected = FALSE
     for (p in parametros){
-      if (DEBUG) cat("\nPARAMETRO:", p,"\n")
+      if (DEBUG) cat("\nPARAMETRO:", param.names[[cont]],"\n")
+
       if (length(p) == n) {
-        if (!exists("p.data")) {
-          p.data <- as.data.frame(p)
-          names(p.data) <- substitute(p)
-        }
-        else {
-          p.data <- cbind(p.data,p)
-          names(p.data)[ncol(p.data)] <- deparse(substitute(p))
-        }
+        p.temp <- as.data.frame(p)
+        names(p.temp) <- param.names[[cont]]
+      } else if ((x.is.df) && (length(p) == 1) && (p %in% names(x))) {
+
+        vars.selected = TRUE #.... if vars were not selected we would keep the whole data.frame
+        p.temp <- as.data.frame(pull(x,p))
+        if(exists("p.data") && (p %in% names(p.data))) p <- paste0(p,"_",ncol(p.data))
+        names(p.temp) <- p
       }
+      if(exists("p.temp")){
+        if (!exists("p.data")) p.data <- p.temp
+        else p.data <- cbind(p.data,p.temp)
+        rm(list="p.temp")
+      }
+
+      cont = cont + 1
     } #--- vector check done
+  }
 
 
+  if(is.numeric(x)) {
+    p.temp <- as.data.frame(x)
+    names(p.temp) <- xname
+    if (!exists("p.data")) p.data <- p.temp
+    else p.data <- cbind(p.data,p.temp)
+    p.temp <- NULL
+  }
+  #........ at this point 'p.data' has all the DATA required
+  #         now lets work BY out
+  #
+  #         IF 'by' have names of columns found in X we MUST get the data BEFORE
+  #         overwritting x with p.data
+  #
+  #         If 'by' doesn't have names of columns and is a vector we don't need to do anything
 
-    #........ at this point 'p.data' has all the information required, but we cannot
-    #         merge it with 'x' because 'x' can have EXCESS information.
-    #
-    #         If it was a data.frame ... could have the variables of interest
-    #         and we could take the rest out, BUT
-    #         that must take into consideration the possibility of BY having
-    #         variable names
+  if ((!missing(by)) && x.is.df) {
+    if(is.data.frame(by)) {
+      if(stop.on.error) stop(feR:::.error.msg(er="BY_IS_DATA_FRAME", lang=lang))
+      else if (show.error) message(feR:::.error.msg(er="BY_IS_DATA_FRAME", lang=lang))
+      return(NA)
+    }
 
-
-    #...... Check if '...' has column names of the 'x' data.frame. Therefore 'x' MUST be a data.frame
-    if(is.data.frame(x)) {
-      parametros <- unlist(list(...))
-      param.any <- any(parametros %in% names(x))
-
-      if(DEBUG) cat("\n Parameters found?:",param.any,"\n")
-
-      if(param.any) {
-        col.names <- parametros[parametros %in% names(x)]
-        if(DEBUG) cat("\n Parameters found:",col.names,"\n")
-        x.data <- as.data.frame(x[,col.names])
-        names(x.data) <- col.names
-        if(DEBUG) print(x.data)
-      }
-
-      #... by could have the same thing... column names...
-      by.any <- any(by %in% names(x))
-      if(DEBUG) cat("\n BY Parameters found?:",param.any,"\n")
-      if(by.any) {
-        if(length(by) == 1) col.names = by
-        else col.names <- by[by.any %in% names(x)]
+    #... by could have the same thing... column names...
+    by.any <- any(by %in% names(x))
+    if(DEBUG) cat("\n BY Parameters found?:",by.any,"\n")
+    if(by.any) {
+      if (length(by) == 1) col.names = by
+      else col.names <- by[by.any %in% names(x)]
+      if(!is.null(col.names)) {
         if(DEBUG) cat("\n BY Parameters found:",col.names,"\n")
         by <- as.data.frame(x[,col.names])
         names(by) <- col.names
         byname <- col.names
         if(DEBUG) print(by)
       }
-    } else if(is.numeric(x)) {
-      x.data <- as.data.frame(x)
-      names(x.data) <- xname
-    }
-
-    if(exists("x.data")) {
-      if(exists("p.data")) x <- cbind(x,p.data)
-      else if(ncol(x.data) > 1 || is.data.frame(x)) x <- x.data
-      #... if it was just a numeric vector we leave it as that
     }
   }
 
-  print(x)
+
+  if(exists("p.data")) {
+    #......... IF x is a data.frame and some vars were selected
+    #            p.data ALREADY have those vars, therefore nothing has to be done
+    #            BUT
+    #            if no vars were selected we need to ADD to the data.frame
+    #            all (if any) numeric vectors included in the elipsis (...)
+    #            and that are currently in p.data
+    if(DEBUG) cat("\n[media] vars selected from data.frame 'x'? ",vars.selected,"\n")
+    if(exists("vars.selected") && (!vars.selected & is.data.frame(x))) x <- cbind(x, p.data)
+    else x <- p.data
+
+    if(DEBUG){
+      print("[media] ------------- X ---------")
+      print(x)
+      print("[media] ------------- by ---------")
+      print(by)
+
+    }
+  }
+
+
+
   if (missing(by) | show.global) x.mean <- feR::means(x=x, ..., xname = xname, decimals = decimals, ci = ci,
                                               DEBUG=DEBUG,stop.on.error=stop.on.error, show.errors = show.errors, lang = lang)
 
@@ -259,8 +270,8 @@ means.default <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
                           decimals=2, ci = 0.95,
                           DEBUG=FALSE,stop.on.error=TRUE, show.errors = TRUE, lang = "es"){
 
-  if (stop.on.error) stop(feR:::.error.msg("MISSING_X", lang=lang))
-  else if (show.errors) message(feR:::.error.msg("MISSING_X", lang=lang))
+  if (stop.on.error) stop(feR:::.error.msg("MEAN_NOT_NUMERIC", lang=lang))
+  else if (show.errors) message(feR:::.error.msg("MEAN_NOT_NUMERIC", lang=lang))
   return(NA)
 }
 
@@ -275,6 +286,12 @@ means.numeric <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))
                           DEBUG=FALSE,stop.on.error=TRUE, show.errors = TRUE, lang = "es"){
 
   if(DEBUG) cat("\n [means.numeric] START...\n")
+
+  if (length(x) < 2) {
+    if (stop.on.error) stop(feR:::.error.msg("MEAN_NOT_NUMERIC", lang=lang))
+    else if (show.errors) message(feR:::.error.msg("MEAN_NOT_NUMERIC", lang=lang))
+    return(NA)
+  }
 
   has.groups <- !missing(by)
 
@@ -374,7 +391,7 @@ means.data.frame <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(
         x.data.frame <- x.data.frame[,names(x.data.frame)[!(names(x.data.frame) %in% by.names)]]
       }
     else {
-        e <- feR:::.error.msg("MEAN_BY", lang = lang)
+        e <- feR:::.error.msg("DIFF_LEN_VECTOR", lang = lang)
         if(stop.on.error) stop(e)
         else if (show.errors) message(e)
         return(NA)
@@ -420,15 +437,3 @@ means.data.frame <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(
 
 
 
-.means.PRUEBAS <- function() {
-  data("ToothGrowth")
-
-  #................................................................. ERRORES.. STUDENT
-  testthat::test_that(
-    "Checking errors in means",
-    {
-      testthat::expect_error(feR::means(stop.on.error = T, lang = "en"),feR:::.error.msg("MISSING_X", lang="en"))
-      testthat::expect_error(feR::means(as.character(ToothGrowth$len), stop.on.error = T, lang = "en"),feR:::.error.msg("MISSING_X", lang="en"))
-    }
-  )
-}
