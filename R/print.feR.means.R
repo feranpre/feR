@@ -1,3 +1,8 @@
+#'
+#' @author Fernando Andres-Pretel
+#'
+
+
 
 
 #' print.feR.means

@@ -1,3 +1,10 @@
+#'
+#' @author Fernando Andres-Pretel
+#'
+
+
+
+
 # TODO:
 #  - cleanup
 #  - standarize names

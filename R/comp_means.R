@@ -134,8 +134,6 @@ comp_means.data.frame <- function(x,xname=feR:::.var.name(deparse(substitute(x))
           else if (any(by %in% names(x))) by.value <- x[,by]    #... variable names
         } else by.value <- by                                   #... data.frame
         if(!identical(by.value, var.value)) {
-          # print(var)
-          # print(by.name)
           res <- feR::comp_means(var.value, xname=var, by = by.value, byname = by.name, DEBUG = DEBUG,
                                  p.sig = p.sig, p.sig.small = p.sig.small,
                                  p.sig.very.small = p.sig.very.small, ci = ci,
