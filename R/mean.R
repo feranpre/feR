@@ -123,7 +123,7 @@ media <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
       } else if ((x.is.df) && (length(p) == 1) && (p %in% names(x))) {
 
         vars.selected = TRUE #.... if vars were not selected we would keep the whole data.frame
-        p.temp <- as.data.frame(pull(x,p))
+        p.temp <- as.data.frame(dplyr::pull(x,p))
         if(exists("p.data") && (p %in% names(p.data))) p <- paste0(p,"_",ncol(p.data))
         names(p.temp) <- p
       }
