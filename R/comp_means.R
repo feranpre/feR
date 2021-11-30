@@ -67,7 +67,7 @@ comp_means.numeric <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
   ) {
     x.test <- feR::wilcoxon_test(x, xname = xname, by = by, byname = byname, decimals = decimals,
                                  ci = ci, alternative = alternative,
-                                 stop.on.error = stop.on.error, show.error = show.error, lang = lang)
+                                 stop.on.error = stop.on.error, lang = lang)
   }
   else {
     if(
@@ -75,14 +75,14 @@ comp_means.numeric <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
       (tolower(method) == "welch")
     ) x.test <- feR::welch_test(x, xname = xname, by = by, byname = byname, decimals = decimals,
                                 ci = ci, alternative = alternative,
-                                stop.on.error = stop.on.error, show.error = show.error, lang = lang)
+                                stop.on.error = stop.on.error, lang = lang)
 
     else if (
       (tolower(method) == "auto" & homocedasticity) |
       (tolower(method) == "student")
     ) x.test <- feR::t_student(x, xname = xname, by = by, byname = byname, decimals = decimals,
                                ci = ci, alternative = alternative,
-                               stop.on.error = stop.on.error, show.error = show.error, lang = lang)
+                               stop.on.error = stop.on.error, lang = lang)
   }
 
 
