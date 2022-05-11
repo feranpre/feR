@@ -242,11 +242,11 @@ media <- function(x, ..., xname=  feR:::.var.name(deparse(substitute(x))),
 }
 
 
-
-#' @rdname media
-#' @export
-m <- media
-
+#'
+#' #' @rdname media
+#' #' @export
+#' m <- media
+#'
 
 
 
