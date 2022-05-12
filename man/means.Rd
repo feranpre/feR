@@ -2,7 +2,9 @@
 % Please edit documentation in R/mean.R
 \name{means}
 \alias{means}
-\title{means}
+\title{#' @rdname media
+#' @export
+m <- media}
 \usage{
 means(
   x,
