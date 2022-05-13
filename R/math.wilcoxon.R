@@ -1,21 +1,5 @@
 
-#' wilcoxon_test
-#'
-#'
-#' rstatix::wilcox_test(ToothGrowth ,len ~ supp)
-#' coin::wilcox_test(ToothGrowth$len ~ ToothGrowth$supp, conf.int = T)
-#' wilcox.test(ToothGrowth$len ~ ToothGrowth$supp, conf.int = T, exact = T)
-#'
-#'
-# tryCatch(wilcox.test(ToothGrowth$len ~ ToothGrowth$supp, conf.level = 0.95, conf.int = TRUE, alternative = "two.sided", exact = T),
-# error = function(e) {
-#   message(e,"\n")
-#   if(stop.on.error) stop()
-#   else return(NA)
-# },
-# warning = function(w){
-#   print(w)
-# })
+
 #'
 #' @export
 wilcoxon_test <- function(x,xname=feR:::.var.name(deparse(substitute(x))),

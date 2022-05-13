@@ -56,6 +56,13 @@ compare  <- function(x,y,...,
     } else {
       result <- feR::wilcoxon_test(x, by = y)
     }
+  } else {
+    if(is.normal){
+      #... anova
+
+    }else{
+
+    }
   }
 
   if(exists("result")) return(result)
