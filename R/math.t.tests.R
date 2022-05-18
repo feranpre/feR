@@ -5,7 +5,7 @@
 welch_test <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
                          by=NULL, byname = feR:::.var.name(deparse(substitute(by))),
                          ci=0.95,alternative="two.sided",
-                         stop.on.error = FALSE, lang = "es", decimals = 2){
+                         stop.on.error = FALSE, lang = "es", decimals = 4){
   tryCatch(feR:::.check.comp_means.parameters(x=x,by=by,ci=ci,alternative=alternative,lang=lang, method="auto"), error = function(e) {
     if(stop.on.error) stop(e)
     else return(NA)
@@ -31,7 +31,7 @@ welch_test <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
 t_student <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
                            by=NULL, byname = feR:::.var.name(deparse(substitute(by)))
                            ,ci=0.95, alternative="two.sided",
-                           stop.on.error = FALSE, lang = "es", decimals = 2){
+                           stop.on.error = FALSE, lang = "es", decimals = 4){
   tryCatch(feR:::.check.comp_means.parameters(x=x,by=by,ci=ci,alternative=alternative,lang=lang, method="auto"), error = function(e) {
     if(stop.on.error) stop(e)
     else return(NA)
@@ -55,23 +55,23 @@ t_student <- function(x,xname=feR:::.var.name(deparse(substitute(x))),
 #' .t.test.results
 #'
 #'
-.t.test.results <- function(test, xname=NULL, byname=NULL, by.levels=NULL, testname=NULL, alternative=NULL, decimals=2){
+.t.test.results <- function(test, xname=NULL, byname=NULL, by.levels=NULL, testname=NULL, alternative=NULL, decimals=4){
   x.test <- data.frame(var.name = xname)
-  x.test$group.var <- byname
+  # x.test$group.var <- byname
   x.test$g1 <- by.levels[1]
   x.test$g2 <- by.levels[2]
   x.test$test.name <- testname
 
-    x.test$df <- test$parameter
-    x.test$stat.name <- "t"
-    x.test$stat.value <- test$statistic
-    x.test$stat.ci.low <- test$conf.int[[1]]
-    x.test$stat.ci.high <- test$conf.int[[2]]
-    x.test$alternative <- alternative
-    x.test$p.value <- test$p.value
+  x.test$df <- test$parameter
+  x.test$stat.name <- "t"
+  x.test$stat.value <- test$statistic
+  x.test$stat.ci.low <- test$conf.int[[1]]
+  x.test$stat.ci.high <- test$conf.int[[2]]
+  x.test$alternative <- alternative
+  x.test$p.value <- test$p.value
 
     # x.test$estimate <- test$estimate
-    x.test$mean.diff <- test$estimate[[1]] - test$estimate[[2]]
+  x.test$mean.diff <- test$estimate[[1]] - test$estimate[[2]]
 
 
 

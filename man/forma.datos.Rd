@@ -9,9 +9,6 @@ forma.datos(..., by = NULL, DEBUG = FALSE, DEBUG.CALL = FALSE)
 \arguments{
 \item{DEBUG.CALL}{}
 }
-\value{
-
-}
 \description{
 Title
 }

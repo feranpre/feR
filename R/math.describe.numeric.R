@@ -1,6 +1,6 @@
 
 #' @export
-.describe.feR_math.numeric <- function(x,..., by = NULL,
+.describe.feR_math.numeric <- function(x,..., y = NULL,
                                        decimals = 4,
                                        ci = 0.95,
                                        na.rm = TRUE,
@@ -39,22 +39,38 @@
     ci.lower = NA
   }
 
-  result <- data.frame(stat = c("n.valid","n.missing",
-                                "min","max","mean",
-                                "ci.upper","ci.lower",
-                                "sd","se","median","IQR",
-                                "p.norm.exact"),
-                       stat.value = c(n.valid,n.missing,
-                                      round(c(min,max,mean,ci.upper,ci.lower,
-                                              sd,se,median,IQR,
-                                              x.normal$p.exact.value), digits = decimals)
-                       )
+  result <- data.frame(n.valid = n.valid,
+                       n.missing = n.missing,
+                       min = min,
+                       max = max,
+                       mean = mean,
+                       ci.upper = ci.upper,
+                       ci.lower = ci.lower,
+                       sd = sd,
+                       se = se,
+                       median = median,
+                       IQR = IQR,
+                       p.norm.exact = x.normal$p.exact.value
+
   )
+
+  # result <- data.frame(stat = c("n.valid","n.missing",
+  #                               "min","max","mean",
+  #                               "ci.upper","ci.lower",
+  #                               "sd","se","median","IQR",
+  #                               "p.norm.exact"),
+  #                      stat.value = c(n.valid,n.missing,
+  #                                     round(c(min,max,mean,ci.upper,ci.lower,
+  #                                             sd,se,median,IQR,
+  #                                             x.normal$p.exact.value), digits = decimals)
+  #                      )
+  # )
 
   class(result) <- c("feR_describe_numeric",class(result))
   attr(result,"var.name") <- var.name
   attr(result,"nor.test") <- x.normal$test
   attr(result, "is.normal") <- x.normal$is.normal
   attr(result, "p.norm") <- x.normal$p.value
+  attr(result, "decimals") <- decimals
   return(result)
 }

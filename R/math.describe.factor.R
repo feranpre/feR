@@ -1,7 +1,7 @@
 
 
 #' @export
-.describe.feR_math.factor <- function(x,..., by = NULL,
+.describe.feR_math.factor <- function(x,..., y = NULL,
                                       decimals = 4,
                                       total.by.row = TRUE,
                                       total.by.column = FALSE,
@@ -13,8 +13,8 @@
 
   if(class(x)!="factor") x <- factor(x)
 
-  if(is.null(by)) {
-    if(DEBUG) cat("\n[.describe.feR_math.factor] No by")
+  if(is.null(y)) {
+    if(DEBUG) cat("\n[.describe.feR_math.factor] No y")
     result <- data.frame("group" = c(levels(x),"NA"))
     t.n <- table(x, useNA = "always")
     result$n <- as.data.frame(t.n)$Freq
@@ -22,24 +22,24 @@
     result$rel.freq.valid <- c(round(prop.table(table(x, useNA = "no"))*100,digits = decimals),NA)
   } else {
 
-    by.name <- args[["byname"]]
-    if(DEBUG) cat("\n[.describe.feR_math.factor] By",by.name)
+    y.name <- args[["byname"]]
+    if(DEBUG) cat("\n[.describe.feR_math.factor] By",y.name)
 
 
-    if(class(by)!="factor") by <- factor(by)
-    t.n <- table(x, by, useNA = "always")
+    if(class(y)!="factor") y <- factor(y)
+    t.n <- table(x, y, useNA = "always")
 
     result_n <- data.frame(rbind(t.n))
     rownames(result_n) <- c(paste0(levels(x),"_n"),"NA_n")
-    colnames(result_n) <- c(levels(by),"NA")
+    colnames(result_n) <- c(levels(y),"NA")
 
 
     #............. CALCULATING PERCENTAGES BY ROW
-    if(total.by.row){
+    if(total.y.row){
       result_rel_freq.row <- data.frame(rbind(round(prop.table(t.n, margin = 1)*100,digits = decimals)))
-      result_rel_freq_valid.row <- data.frame(rbind(round(prop.table(table(x, by, useNA = "no"), margin = 1)*100,digits = decimals)))
+      result_rel_freq_valid.row <- data.frame(rbind(round(prop.table(table(x, y, useNA = "no"), margin = 1)*100,digits = decimals)))
 
-      colnames(result_rel_freq.row) <- c(levels(by),"NA")
+      colnames(result_rel_freq.row) <- c(levels(y),"NA")
       rownames(result_rel_freq.row) <- c(paste0(levels(x),"_rel.freq.row"),"NA_rel.freq.row")
 
       result_rel_freq.row$total.row <- rowSums(result_rel_freq.row)
@@ -48,7 +48,7 @@
       result_rel_freq_valid.row <- rbind(result_rel_freq_valid.row,rep(NA,ncol(result_rel_freq_valid.row)))
       result_rel_freq_valid.row <- cbind(result_rel_freq_valid.row,rep(NA,nrow(result_rel_freq_valid.row)))
 
-      names(result_rel_freq_valid.row) <- c(levels(by),"NA")
+      names(result_rel_freq_valid.row) <- c(levels(y),"NA")
       rownames(result_rel_freq_valid.row) <- c(paste0(levels(x),"_rel.freq.valid.row"),"NA_rel.freq.valid.row")
 
       result_rel_freq_valid.row$total.row <- rowSums(result_rel_freq_valid.row)
@@ -68,18 +68,18 @@
     #............. CALCULATING PERCENTAGES BY COLUMN
     if(total.by.column){
       result_rel_freq.column <- data.frame(rbind(round(prop.table(t.n, margin = 2)*100,digits = decimals)))
-      colnames(result_rel_freq.column) <- c(levels(by),"NA")
+      colnames(result_rel_freq.column) <- c(levels(y),"NA")
       rownames(result_rel_freq.column) <- c(paste0(levels(x),"_rel.freq.column"),"NA_rel.freq.column")
 
       result_rel_freq.column <- rbind(result_rel_freq.column, colSums(result_rel_freq.column, na.rm = TRUE))
       rownames(result_rel_freq.column)[nrow(result_rel_freq.column)] <- "total.column.rel.freq"
 
 
-      result_rel_freq_valid.column <- data.frame(rbind(round(prop.table(table(x, by, useNA = "no"), margin = 2)*100,digits = decimals)))
+      result_rel_freq_valid.column <- data.frame(rbind(round(prop.table(table(x, y, useNA = "no"), margin = 2)*100,digits = decimals)))
       result_rel_freq_valid.column <- rbind(result_rel_freq_valid.column,rep(NA,ncol(result_rel_freq_valid.column)))
       result_rel_freq_valid.column <- cbind(result_rel_freq_valid.column,rep(NA,nrow(result_rel_freq_valid.column)))
 
-      colnames(result_rel_freq_valid.column) <- c(levels(by),"NA")
+      colnames(result_rel_freq_valid.column) <- c(levels(y),"NA")
       rownames(result_rel_freq_valid.column) <- paste0(c(levels(x),"NA"),"_rel.freq.valid.column")
 
       result_rel_freq_valid.column <- rbind(result_rel_freq_valid.column, colSums(result_rel_freq_valid.column, na.rm = TRUE))
@@ -136,7 +136,7 @@
 
 
     result <- result[row_order,]
-    attr(result,"by.name") <- by.name
+    attr(result,"y.name") <- y.name
   }
 
 

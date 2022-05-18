@@ -5,8 +5,8 @@
 #' @export
 describe <- function(x, ...,
                      xname=  feR:::.var.name(deparse(substitute(x))),
-                     by = NULL,
-                     byname =  feR:::.var.name(deparse(substitute(by))),
+                     y = NULL,
+                     yname =  feR:::.var.name(deparse(substitute(y))),
                      decimals = 4,
                      guess.factor = TRUE,
                      max.factor.cat = 10,
@@ -16,6 +16,9 @@ describe <- function(x, ...,
                      #----------------------- factors
                      total.by.row = TRUE,
                      total.by.column = FALSE,
+
+
+                     show.general = TRUE,
 
                      #----------------------- comparisons
 
@@ -30,7 +33,7 @@ describe <- function(x, ...,
   passed.args <- as.list(match.call()[-1])
   final.args <- as.list(modifyList(args, passed.args))
 
-  if(!is.null(by)) final.args$by <- by
+  if(!is.null(y)) final.args$y <- y
   if(guess.factor) final.args$x <- do.call(feR:::.guess.factor,final.args)
   do.call(feR:::.describe,final.args)
 }
@@ -60,7 +63,9 @@ describe <- function(x, ...,
 
 
 
-.describe.numeric <- function(x,..., by = NULL, DEBUG=FALSE) {
+.describe.numeric <- function(x,..., y = NULL, decimals = 4,
+                              show.general = TRUE,
+                              DEBUG=FALSE) {
 
 
   if(DEBUG) cat("\n[.describe.numeric] Called\n")
@@ -69,27 +74,36 @@ describe <- function(x, ...,
   args$DEBUG <- DEBUG
 
 
-  if(is.null(by)) {
-    if(DEBUG) cat("\n[.describe.numeric] No by\n")
+  if(is.null(y)) {
+    if(DEBUG) cat("\n[.describe.numeric] No y\n")
     result <- do.call(feR:::.describe.feR_math.numeric,args)
   }
   else {
-    result <- tapply(x,by,function(x.value){
+    result.temp <- tapply(x,y,function(x.value){
       args$x = x.value
-      args$by = by
+      args$y = y
       do.call(feR:::.describe.feR_math.numeric,args)
       })
+    for(r in names(result.temp)){
+      r.temp <- result.temp[[r]]
+      r.g <- data.frame(group=r)
+      r.g <- cbind(r.g,r.temp)
+
+      if(!exists("result")) {result = r.g}
+      else {result <- rbind(result, r.g)}
+    }
     class(result) <- c("feR_describe_numeric_list",class(result))
     attr(result,"var.name") <- args[["xname"]]
-    attr(result,"by.name") <- args[["byname"]]
+    attr(result,"y.name") <- args[["yname"]]
   }
+  attr(result,"decimals") <- decimals
   return(result)
 }
 
 
 
 #' @export
-.describe.factor <- function(x,..., by = NULL,
+.describe.factor <- function(x,..., y = NULL,
                              # decimals = 4,
                              # total.by.row = TRUE,
                              # total.by.column = FALSE,
@@ -99,7 +113,7 @@ describe <- function(x, ...,
   args <- list(...)
   args$x <- x
   args$DEBUG <- DEBUG
-  if(!is.null(by)) args$by <- by
+  if(!is.null(y)) args$y <- y
   result <- do.call(feR:::.describe.feR_math.factor,args)
 
 
@@ -110,8 +124,29 @@ describe <- function(x, ...,
 
 
 #' @export
-print.feR_describe_numeric <- function(obj) {
-  print(knitr::kable(obj, caption = attr(obj,"var.name")))
+print.feR_describe_numeric <- function(obj, raw=FALSE) {
+  if(raw) {
+    print("RAW")
+    print(knitr::kable(obj))
+    return()
+  }
+  decimals <- attr(obj,"decimals")
+
+  for(v in names(obj)){
+    value <- obj[1,v]
+    if(is.numeric(value)) value <- round(value, digits = decimals)
+    value.char <- as.character(value)
+
+    if(exists("stats")) stats <- c(stats,v)
+    else stats <- v
+
+    if(exists("values")) values <- c(values,value)
+    else values <- value
+  }
+
+  x.final <- data.frame(stats=stats, value=values)
+
+  print(knitr::kable(x.final, caption = attr(obj,"var.name")))
   cat("\nNormality test:",attr(obj,"nor.test"),"; p.value:",attr(obj,"p.norm"),"\n")
 }
 
@@ -120,24 +155,54 @@ print.feR_describe_numeric <- function(obj) {
 print.feR_describe_numeric_list <- function(obj) {
 
   nor.text = ""
-  for(i in 1:length(obj)){
+  decimals = attr(obj,"decimals")
+  rownames(obj) <- obj$group
+  obj$group <- NULL
+  result <- t(obj)
 
-    db <- obj[[i]]
-    # print(db)
-    cat.name <- names(obj)[i]
+  # for(i in 1:length(obj)){
+  #
+  #   db <- obj[[i]]
+  #   new.decimals = attr(db,"decimals")
+  #   if(decimals < new.decimals) decimals <- new.decimals
+  #   # print(db)
+  #   cat.name <- names(obj)[i]
+  #
+  #   nor.text.temp <- paste0(attr(obj,'y.name'),"[",cat.name,"] -> Normality test:",attr(db,"nor.test"),"; p.value:",attr(db,"p.norm"),"\n")
+  #   nor.text <- paste0(nor.text,nor.text.temp)
+  #
+  #
+  #   # if(i==1) result <- as.data.frame(db)
+  #   if(i==1) {
+  #     result <- db
+  #     result$group <- cat.name
+  #     result <- result[,c(ncol(result),1:(ncol(result)-1))]
+  #   }
+  #   else {
+  #     db$group <- cat.name
+  #     result <- rbind(result,db)
+  #   }
+  #
+  #   # names(result)[ncol(result)] <- cat.name
+  # }
 
-    nor.text.temp <- paste0(attr(obj,'by.name'),"[",cat.name,"] -> Normality test:",attr(db,"nor.test"),"; p.value:",attr(db,"p.norm"),"\n")
-    nor.text <- paste0(nor.text,nor.text.temp)
+  # for(v in names(result)){
+  #   value <- result[1,v]
+  #   if(is.numeric(value)) value <- round(value, digits = decimals)
+  #   value.char <- as.character(value)
+  #
+  #   if(exists("stats")) stats <- c(stats,v)
+  #   else stats <- v
+  #
+  #   if(exists("values")) values <- c(values,value)
+  #   else values <- value
+  # }
 
-    if(i==1) result <- as.data.frame(db)
-    else {
-      result <- cbind(result,as.data.frame(db)$stat.value)
-    }
+  # x.final <- data.frame(stats=stats, value=values)
 
-    names(result)[ncol(result)] <- cat.name
-  }
 
-  print(knitr::kable(result, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"by.name"))))
+
+  print(knitr::kable(result, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"y.name"))))
   cat(nor.text)
 
 }
@@ -145,7 +210,9 @@ print.feR_describe_numeric_list <- function(obj) {
 
 #' @export
 print.feR_describe_factor <- function(obj) {
-  if(!is.null(attr(obj,"by.name"))) print(knitr::kable(obj, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"by.name"))))
+
+
+  if(!is.null(attr(obj,"y.name"))) print(knitr::kable(obj, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"y.name"))))
   else print(knitr::kable(obj, caption = attr(obj,"var.name")))
 }
 

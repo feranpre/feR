@@ -217,5 +217,7 @@ print.feR.means <- function(x) {
     names(x)[names(x) == "nor.test "] <- "test.norm"
     names(x)[names(x) == "is.normal"] <- "es.normal"
   }
+
+
   print(knitr::kable(x, caption = paste(caption.mean,caption)))
 }

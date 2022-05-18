@@ -2,7 +2,7 @@
 compare  <- function(x,y,...,
                      xname=  feR:::.var.name(deparse(substitute(x))),
                      yname =  feR:::.var.name(deparse(substitute(by))),
-
+                     show.desc = T,
                      p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
                      DEBUG=TRUE) {
 
@@ -43,13 +43,13 @@ compare  <- function(x,y,...,
     }
   }
 
+  #--- test homocedasticity
+  bart <- bartlett.test(x ~ y)
+  is.var.equal <- bart$p.value < p.sig
 
   if(DEBUG) cat("[.compare.numeric] Normality ->",is.normal,"\n")
   if(total.cat == 2) {
     if(is.normal) {
-      #--- test homocedasticity
-      bart <- bartlett.test(x ~ y)
-      is.var.equal <- bart$p.value < p.sig
       if(DEBUG) cat("[.compare.numeric] Homocedasticity ->",is.var.equal,"\n")
       if(is.var.equal) result <- do.call(feR:::t_student, args)
       else result <- feR:::welch_test(x, by = y)
@@ -57,11 +57,10 @@ compare  <- function(x,y,...,
       result <- feR::wilcoxon_test(x, by = y)
     }
   } else {
-    if(is.normal){
-      #... anova
-
+    if(is.normal & is.var.equal){
+      result <- feR:::anova_test(x ~ y)
     }else{
-
+      result <- feR:::kruskal_test(x ~ y)
     }
   }
 

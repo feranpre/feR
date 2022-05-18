@@ -1,5 +1,6 @@
-
-
+# install.packages(c('nortest','PMCMRplus','car'))
+# install.packages("janitor")
+# install.packages("magrittr")
 
 rm(list = ls())
 
@@ -20,6 +21,13 @@ data_ <- rbind(data_, list(22,NA,NA,"No",NA))
 data_ <- rbind(data_, list(NA,NA,NA,"No","Bad"))
 data_$EMPTY <- rep(NA,nrow(data_))
 data_$HEALTH <- as.factor(data_$HEALTH)
+
+
+feR::describe(data_$AGE)
+feR::describe(data_$SEX)
+feR::describe(data_$AGE, data_$SEX)
+feR::compare(data_$AGE, data_$SEX, DEBUG =F)
+
 
 
 mean(data_$AGE)

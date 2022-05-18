@@ -32,5 +32,21 @@ print.feR.comp_means <- function(x){
     cont = cont + 1
   }
 
-  print(knitr::kable(x, caption = paste("Mean comparison of",caption)))
+  # library(tidyr)
+  # x.final <- x %>% pivot_longer()
+  # print(x.final)
+
+  for(v in names(x)){
+    value <- as.character(x[1,v])
+    if(exists("stats")) stats <- c(stats,v)
+    else stats <- v
+
+    if(exists("values")) values <- c(values,value)
+    else values <- value
+  }
+
+  x.final <- data.frame(stats=stats, value=values)
+  # print(x.final)
+
+  print(knitr::kable(x.final, caption = paste("Mean comparison of",caption)))
 }
