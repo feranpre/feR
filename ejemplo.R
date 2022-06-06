@@ -8,6 +8,7 @@ rm(list = ls())
 
 
 
+
 # library(udaicR)
 data_ <- data.frame(AGE=rnorm(30, mean = 30, sd = 5),
                     HEIGHT=sample(x = 120:205, size=30, replace = TRUE ),
