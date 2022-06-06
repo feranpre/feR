@@ -53,7 +53,7 @@ feR::comp.media(data_, "AGE", by = "SEX", DEBUG.FORMA = T, DEBUG.CALL = T)
 feR::comp.media(data_$AGE, by = data_$SEX, DEBUG.FORMA = T, DEBUG.CALL = T)
 
 feR::comp.media(data_, "AGE", by = "HEALTH")
-feR::comp.media(data_, "AGE", by = "HEALTH", show.interpretation =T, show.global = F, show.desc = F)
+feR::comp.media(data_, "AGE", by = "HEALTH", show.interpretation = T, show.global = F, show.desc = F)
 feR::comp.media(data_[1:6,], "AGE", by = "HEALTH", show.interpretation =T, show.global = F, show.desc = F)
 
 feR::medias(data_[1:6,], "AGE", by = "HEALTH", show.interpretation =T, show.global = F, show.desc = T, DEBUG.CALL = F, comp = T)
