@@ -155,8 +155,8 @@ print.feR_describe_numeric <- function(obj, raw=FALSE) {
     if(exists("stats")) stats <- c(stats,v)
     else stats <- v
 
-    if(exists("values")) values <- c(values,value)
-    else values <- value
+    if(exists("values")) values <- c(values,round(value,digits = decimals))
+    else values <- round(value,digits = decimals)
   }
 
   x.final <- data.frame(stats=stats, value=values)
@@ -173,49 +173,13 @@ print.feR_describe_numeric_list <- function(obj) {
   decimals = attr(obj,"decimals")
   rownames(obj) <- obj$group
   obj$group <- NULL
+
+    for(v in names(obj)){
+    value <- obj[,v]
+    if(is.numeric(value)) obj[,v] <- round(value, digits = decimals)
+  }
+
   result <- t(obj)
-
-  # for(i in 1:length(obj)){
-  #
-  #   db <- obj[[i]]
-  #   new.decimals = attr(db,"decimals")
-  #   if(decimals < new.decimals) decimals <- new.decimals
-  #   # print(db)
-  #   cat.name <- names(obj)[i]
-  #
-  #   nor.text.temp <- paste0(attr(obj,'y.name'),"[",cat.name,"] -> Normality test:",attr(db,"nor.test"),"; p.value:",attr(db,"p.norm"),"\n")
-  #   nor.text <- paste0(nor.text,nor.text.temp)
-  #
-  #
-  #   # if(i==1) result <- as.data.frame(db)
-  #   if(i==1) {
-  #     result <- db
-  #     result$group <- cat.name
-  #     result <- result[,c(ncol(result),1:(ncol(result)-1))]
-  #   }
-  #   else {
-  #     db$group <- cat.name
-  #     result <- rbind(result,db)
-  #   }
-  #
-  #   # names(result)[ncol(result)] <- cat.name
-  # }
-
-  # for(v in names(result)){
-  #   value <- result[1,v]
-  #   if(is.numeric(value)) value <- round(value, digits = decimals)
-  #   value.char <- as.character(value)
-  #
-  #   if(exists("stats")) stats <- c(stats,v)
-  #   else stats <- v
-  #
-  #   if(exists("values")) values <- c(values,value)
-  #   else values <- value
-  # }
-
-  # x.final <- data.frame(stats=stats, value=values)
-
-
 
   print(knitr::kable(result, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"y.name"))))
   for (g in names(attr(obj,"nor.test"))){
