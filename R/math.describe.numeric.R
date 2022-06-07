@@ -1,6 +1,6 @@
 
 #' @export
-.describe.feR_math.numeric <- function(x,..., y = NULL,
+.describe.feR_math.numeric <- function(x, ..., y = NULL,
                                        decimals = 4,
                                        ci = 0.95,
                                        na.rm = TRUE,
@@ -18,12 +18,12 @@
 
 
 
-  min = ifelse(n.valid > 1, min(x, na.rm = na.rm), NA)
-  max = ifelse(n.valid > 1, max(x, na.rm = na.rm), NA)
-  mean = ifelse(n.valid > 1, mean(x, na.rm = na.rm), NA)
-  sd = ifelse(n.valid > 1, sd(x, na.rm = na.rm), NA)
-  median = ifelse(n.valid > 1, median(x, na.rm = na.rm), NA)
-  IQR = ifelse(n.valid > 1, IQR(x, na.rm = na.rm), NA)
+  min <- ifelse(n.valid > 1, min(x, na.rm = na.rm), NA)
+  max <- ifelse(n.valid > 1, max(x, na.rm = na.rm), NA)
+  mean <- ifelse(n.valid > 1, mean(x, na.rm = na.rm), NA)
+  sd <- ifelse(n.valid > 1, sd(x, na.rm = na.rm), NA)
+  median <- ifelse(n.valid > 1, median(x, na.rm = na.rm), NA)
+  IQR <- ifelse(n.valid > 1, IQR(x, na.rm = na.rm), NA)
   se <- ifelse(n.valid > 1, sd(x, na.rm = na.rm)/sqrt(n.valid), NA)
   if (n.valid > 1) {
 
@@ -54,21 +54,9 @@
 
   )
 
-  # result <- data.frame(stat = c("n.valid","n.missing",
-  #                               "min","max","mean",
-  #                               "ci.upper","ci.lower",
-  #                               "sd","se","median","IQR",
-  #                               "p.norm.exact"),
-  #                      stat.value = c(n.valid,n.missing,
-  #                                     round(c(min,max,mean,ci.upper,ci.lower,
-  #                                             sd,se,median,IQR,
-  #                                             x.normal$p.exact.value), digits = decimals)
-  #                      )
-  # )
-
-  class(result) <- c("feR_describe_numeric",class(result))
-  attr(result,"var.name") <- var.name
-  attr(result,"nor.test") <- x.normal$test
+  class(result) <- c("feR_describe_numeric", class(result))
+  attr(result, "var.name") <- var.name
+  attr(result, "nor.test") <- x.normal$test
   attr(result, "is.normal") <- x.normal$is.normal
   attr(result, "p.norm") <- x.normal$p.value
   attr(result, "decimals") <- decimals

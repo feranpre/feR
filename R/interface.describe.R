@@ -33,18 +33,18 @@ describe <- function(x, ...,
   passed.args <- as.list(match.call()[-1])
   final.args <- as.list(modifyList(args, passed.args))
 
-  if(!is.null(y)) final.args$y <- y
-  if(guess.factor) final.args$x <- do.call(feR:::.guess.factor,final.args)
-  do.call(feR:::.describe,final.args)
+  if (!is.null(y)) final.args$y <- y
+  if (guess.factor) final.args$x <- do.call(feR:::.guess.factor, final.args)
+  do.call(feR:::.describe, final.args)
 }
 
 
-.describe <- function(x,..., DEBUG=FALSE){
-  UseMethod(".describe",x)
+.describe <- function(x, ..., DEBUG = FALSE) {
+  UseMethod(".describe", x)
 }
 
 
-.describe.data.frame <- function(x,...) {
+.describe.data.frame <- function(x, ...) {
 
   args=list(...)
   results <- list()
@@ -79,8 +79,8 @@ describe <- function(x, ...,
     result <- do.call(feR:::.describe.feR_math.numeric,args)
   }
   else {
-    result.temp <- tapply(x,y,function(x.value){
-      args$x = x.value
+    result.temp <- tapply(x, y, function(xValue){
+      args$x = xValue
       args$y = y
       do.call(feR:::.describe.feR_math.numeric,args)
       })
@@ -89,12 +89,27 @@ describe <- function(x, ...,
       r.g <- data.frame(group=r)
       r.g <- cbind(r.g,r.temp)
 
-      if(!exists("result")) {result = r.g}
-      else {result <- rbind(result, r.g)}
+      if(!exists("result")) {
+        result = r.g
+        nor.test <- list(attr(r.temp, "nor.test"))
+        p.norm <- list(attr(r.temp, "p.norm"))
+        names(nor.test)[length(nor.test)] <- r
+        names(p.norm)[length(p.norm)] <- r
+        }
+      else {
+        result <- rbind(result, r.g)
+        nor.test <- append(nor.test, attr(r.temp, "nor.test"))
+        p.norm <- append(p.norm, attr(r.temp, "p.norm"))
+        names(nor.test)[length(nor.test)] <- r
+        names(p.norm)[length(p.norm)] <- r
+        }
+      
     }
-    class(result) <- c("feR_describe_numeric_list",class(result))
-    attr(result,"var.name") <- args[["xname"]]
-    attr(result,"y.name") <- args[["yname"]]
+    class(result) <- c("feR_describe_numeric_list", class(result))
+    attr(result, "var.name") <- args[["xname"]]
+    attr(result, "y.name") <- args[["yname"]]
+    attr(result, "nor.test") <- nor.test
+    attr(result, "p.norm") <- p.norm
   }
   attr(result,"decimals") <- decimals
   return(result)
@@ -114,7 +129,7 @@ describe <- function(x, ...,
   args$x <- x
   args$DEBUG <- DEBUG
   if(!is.null(y)) args$y <- y
-  result <- do.call(feR:::.describe.feR_math.factor,args)
+  result <- do.call(feR:::.describe.feR_math.factor, args)
 
 
   return(result)
@@ -203,7 +218,11 @@ print.feR_describe_numeric_list <- function(obj) {
 
 
   print(knitr::kable(result, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"y.name"))))
-  cat(nor.text)
+  for (g in names(attr(obj,"nor.test"))){
+    cat("\nNormality test ",g,":",attr(obj,"nor.test")[[g]],"; p.value:",attr(obj,"p.norm")[[g]],"\n")
+  }
+  
+
 
 }
 
