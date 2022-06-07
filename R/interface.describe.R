@@ -1,7 +1,34 @@
 
 
 
-
+#' describe
+#'
+#' `describe()` give descriptive statistics about the vector/data.frame
+#' passed as argument.
+#' 
+#' If it is a vector it will discriminate between **numeric** and **factor**
+#' (it will even try to guess if a numeric variable is a factor) and will
+#' give the correct descriptive statistics.
+#'
+#' @param x DESCRIPTION.
+#' @param ... DESCRIPTION.
+#' @param xname DESCRIPTION.
+#' @param y DESCRIPTION.
+#' @param yname DESCRIPTION.
+#' @param decimals DESCRIPTION.
+#' @param guess.factor DESCRIPTION.
+#' @param max.factor.cat DESCRIPTION.
+#' @param na.rm DESCRIPTION.
+#' @param ci DESCRIPTION.
+#' @param total.by.row DESCRIPTION.
+#' @param total.by.column DESCRIPTION.
+#' @param show.general DESCRIPTION.
+#' @param DEBUG DESCRIPTION.
+#'
+#' @return RETURN_DESCRIPTION
+#' @examples
+#' # ADD_EXAMPLES_HERE
+#' 
 #' @export
 describe <- function(x, ...,
                      xname=  feR:::.var.name(deparse(substitute(x))),

@@ -1,5 +1,20 @@
+
 #' normal.test
 #'
+#' FUNCTION_DESCRIPTION
+#'
+#' @param x DESCRIPTION.
+#' @param n.valid DESCRIPTION.
+#' @param decimals DESCRIPTION.
+#' @param p.sig DESCRIPTION.
+#' @param p.sig.small DESCRIPTION.
+#' @param p.sig.very.small DESCRIPTION.
+#' @param stop.on.error DESCRIPTION.
+#' @param show.error DESCRIPTION.
+#'
+#' @return RETURN_DESCRIPTION
+#' @examples
+#' # ADD_EXAMPLES_HERE
 #' @export
 normal.test <- function(x, n.valid = NULL, decimals = 2, p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
                         stop.on.error = TRUE, show.error = TRUE) {

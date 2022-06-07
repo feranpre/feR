@@ -1,6 +1,3 @@
-# install.packages(c('nortest','PMCMRplus','car'))
-# install.packages("janitor")
-# install.packages("magrittr")
 
 rm(list = ls())
 
@@ -48,8 +45,6 @@ feR::medias(data_$sex, decimals = 4)
 feR::medias(data_$age[1:10], by = data_$sex, decimals = 4)
 feR::medias(data_$HEALTH, by = data_$sex, decimals = 4)
 
-# test github token, for real
-# a
 
 
 feR::medias(data_, "age", by = "sex", show.interpretation =T, show.global = F)
@@ -104,4 +99,3 @@ if (PRUEBAS.CALL){
   prueba.call(data_, by = c("sex","BLOND"), c("age", "HEIGHT"), DEBUG.CALL=TRUE, DEBUG = TRUE)
   prueba.call(data_, by = c("sex","BLOND"), "age", "HEIGHT", DEBUG.CALL=TRUE, DEBUG = TRUE)
 }
-
