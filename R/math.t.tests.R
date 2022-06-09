@@ -69,7 +69,7 @@ t_test <- function(x, x.name=feR:::.var.name(deparse(substitute(x))),
                       else return(NA)
                     })
 
-  if(length(test) == 1) if(is.na(test)) return(NA)
+  if (length(test) == 1) if (is.na(test)) return(NA)
   x.test <- feR:::.t.test.results(test, x.name = x.name, y.name=y.name,
                                   y.levels = levels(as.factor(y)),
                                   decimals = decimals, alternative = alternative,

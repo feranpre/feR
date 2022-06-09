@@ -2,9 +2,11 @@
 #' @export
 .describe.feR_math.numeric <- function(x, ..., y = NULL,
                                        decimals = 4,
-                                       ci = 0.95,
+                                       p.sig = 0.05,
                                        na.rm = TRUE,
                                        DEBUG = TRUE) {
+  
+  ci <- 1 - p.sig
   if(DEBUG) cat("\n[.describe.feR_math.numeric] Called\n")
   args <- list(...)
 
@@ -28,9 +30,9 @@
   if (n.valid > 1) {
 
     if(is.x.normal){
-      error <- qnorm(alpha_2)*se
+      error <- qnorm(alpha_2) * se
     } else {
-      error <- qt(alpha_2, df= n.valid -1)*se
+      error <- qt(alpha_2, df = n.valid - 1) * se
     }
     ci.upper <- mean + error
     ci.lower <- mean - error
