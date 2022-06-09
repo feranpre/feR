@@ -40,7 +40,7 @@ normal.test <- function(x, decimals = 2,
                     error = function(e) {
                       if(stop.on.error) stop(e)
                       else {
-                        if (show.errors) message(e)
+                        if (show.error) message(e)
                         return(NA)
                       }
                     })
@@ -51,7 +51,7 @@ normal.test <- function(x, decimals = 2,
                 error = function(e) {
                               if(stop.on.error) stop(e)
                               else {
-                                if (show.errors) message(e)
+                                if (show.error) message(e)
                                 return(NA)
                               }
                             })

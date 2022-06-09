@@ -3,11 +3,6 @@ rm(list = ls())
 
 
 
-
-
-
-
-
   data_ <- data.frame(age = rnorm(30, mean = 30, sd = 5),
                     height = sample(x = 120:205, size = 30, replace = TRUE),
                     sex = sample(x = c("Male", "Female"), prob = c(.5, .5),
