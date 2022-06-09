@@ -36,6 +36,8 @@ feR::describe(data_$age, y = data_$sex, show.general = TRUE)
 feR::welch_test(data_$age, y = data_$sex)
 feR::t_test(data_$age, y = data_$sex)
 
+
+feR:::.check.comp_means.parameters()
 mean(data_$age)
 is.data.frame(data_$age)
 
