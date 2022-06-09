@@ -33,7 +33,7 @@ compare  <- function(x,y,...,
   args$DEBUG <- DEBUG
 
   total.cat <- length(levels(y))
-  desc <- do.call(feR::describe,args)
+  desc <- do.call(feR::describe, args)
 
   is.normal = TRUE
   for(v in desc) {
