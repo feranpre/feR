@@ -12,7 +12,7 @@
   if(DEBUG) cat("\n[.describe.feR_math.numeric] var.name =",var.name,"\n x =",x,"\n")
   n.missing = sum(is.na(x))
   n.valid = length(x) - n.missing
-  x.normal = feR:::normal.test(x, n.valid=n.valid, decimals = decimals)
+  x.normal = feR:::normal.test(x, decimals = decimals)
   is.x.normal = ifelse(x.normal$is.normal == TRUE & !is.na(x.normal$is.normal),TRUE,FALSE)
   alpha_2 <- ci+((1-ci)/2) #... alpha halves for confidence interval
 
@@ -30,13 +30,13 @@
     if(is.x.normal){
       error <- qnorm(alpha_2)*se
     } else {
-      error <- qt(alpha_2, df=n.valid -1)*se
+      error <- qt(alpha_2, df= n.valid -1)*se
     }
     ci.upper <- mean + error
     ci.lower <- mean - error
   } else {
-    ci.upper = NA
-    ci.lower = NA
+    ci.upper <- NA
+    ci.lower <- NA
   }
 
   result <- data.frame(n.valid = n.valid,

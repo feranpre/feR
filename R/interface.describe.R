@@ -13,9 +13,9 @@
 #'
 #' @param x DESCRIPTION.
 #' @param ... DESCRIPTION.
-#' @param xname DESCRIPTION.
+#' @param x.name DESCRIPTION.
 #' @param y DESCRIPTION.
-#' @param yname DESCRIPTION.
+#' @param y.name DESCRIPTION.
 #' @param decimals DESCRIPTION.
 #' @param guess.factor DESCRIPTION.
 #' @param max.factor.cat DESCRIPTION.
@@ -32,9 +32,9 @@
 #'
 #' @export
 describe <- function(x, ...,
-                     xname=  feR:::.var.name(deparse(substitute(x))),
+                     x.name=  feR:::.var.name(deparse(substitute(x))),
                      y = NULL,
-                     yname =  feR:::.var.name(deparse(substitute(y))),
+                     y.name =  feR:::.var.name(deparse(substitute(y))),
                      decimals = 4,
                      guess.factor = TRUE,
                      max.factor.cat = 10,
@@ -82,7 +82,7 @@ describe <- function(x, ...,
 
   for (var.name in names(x)) {
     args$x <- x[, var.name]
-    args$xname <- var.name
+    args$x.name <- var.name
     var <- do.call(feR:::.describe, args)
     results[[var.name]] <- var
 
@@ -152,7 +152,7 @@ describe <- function(x, ...,
     
     attr(result.groups, "nor.test") <- nor.test
     attr(result.groups, "p.norm") <- p.norm
-    attr(result.groups, "y.name") <- args[["yname"]]
+    attr(result.groups, "y.name") <- args[["y.name"]]
 
   }
 
@@ -168,7 +168,7 @@ describe <- function(x, ...,
   attr(result, "show.general") <- show.general
   attr(result, "show.markdown.division") <- show.markdown.division
   attr(result, "markdown.division.prefix") <- markdown.division.prefix
-  attr(result, "var.name") <- args[["xname"]]
+  attr(result, "var.name") <- args[["x.name"]]
 
   return(result)
 }
