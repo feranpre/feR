@@ -43,16 +43,6 @@ normal.test <- function(x, n.valid = NULL, decimals = 2, p.sig = 0.05, p.sig.sma
                               }
                             })
     nor.test = "Lillie (KS)"
-  # } else if (n.valid > 0) {
-  #   norm = tryCatch(ks.test(x, "pnorm"),
-  #                     error = function(e) {
-  #                       if(stop.on.error) stop(e)
-  #                       else {
-  #                         if (show.errors) message(e)
-  #                         return(NA)
-  #                       }
-  #                     })
-  #   nor.test = "KS"
   } else {
     p.norm.exact = NA
     norm.stat = NA

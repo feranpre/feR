@@ -27,12 +27,13 @@ data_$health <- as.factor(data_$health)
 
 
 feR::describe(data_$age)
-c<- feR::describe(data_$age, y = data_$sex, DEBUG = FALSE)
+
+feR::describe(data_$age, xname="asf", y = data_$sex, DEBUG = FALSE)
 
 feR::describe(data_$sex)
-feR::describe(data_$age, data_$sex)
-
-
+c <- feR::describe(data_$age, y=data_$sex, show.general=TRUE)
+is.element(c,"p.norm")
+is.null(attr(c,"p.norm2"))
 
 
 mean(data_$age)

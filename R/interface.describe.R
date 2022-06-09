@@ -1,3 +1,4 @@
+#' @TODO: Añadir un comando para separar tablas unas de otras en el print, de forma que se puedan poner cabeceras de markdown
 
 
 
@@ -28,7 +29,7 @@
 #' @return RETURN_DESCRIPTION
 #' @examples
 #' # ADD_EXAMPLES_HERE
-#' 
+#'
 #' @export
 describe <- function(x, ...,
                      xname=  feR:::.var.name(deparse(substitute(x))),
@@ -44,8 +45,11 @@ describe <- function(x, ...,
                      total.by.row = TRUE,
                      total.by.column = FALSE,
 
-
+                     #----------------------- printing options
                      show.general = TRUE,
+                     show.markdown.division = TRUE,
+                     markdown.division.prefix = "##",
+
 
                      #----------------------- comparisons
 
@@ -66,79 +70,106 @@ describe <- function(x, ...,
 }
 
 
-.describe <- function(x, ..., DEBUG = FALSE) {
+.describe <- function(x, ..., DEBUG = FALSE, show.general = TRUE) {
   UseMethod(".describe", x)
 }
 
 
 .describe.data.frame <- function(x, ...) {
 
-  args=list(...)
+  args <- list(...)
   results <- list()
 
-  for(var.name in names(x)){
-    args$x <- x[,var.name]
+  for (var.name in names(x)) {
+    args$x <- x[, var.name]
     args$xname <- var.name
-    var <- do.call(feR:::.describe,args)
+    var <- do.call(feR:::.describe, args)
     results[[var.name]] <- var
 
   }
-  class(results) <- c("feR_describe_data_frame",class(results))
+  class(results) <- c("feR_describe_data_frame", class(results))
   return(results)
 }
 
 
 
 
-.describe.numeric <- function(x,..., y = NULL, decimals = 4,
+.describe.numeric <- function(x, ..., y = NULL, decimals = 4,
                               show.general = TRUE,
-                              DEBUG=FALSE) {
+                              show.markdown.division = TRUE,
+                              markdown.division.prefix = "##",
+                              DEBUG = FALSE) {
 
 
-  if(DEBUG) cat("\n[.describe.numeric] Called\n")
+  if (DEBUG) cat("\n[.describe.numeric] Called\n")
   args <- list(...)
   args$x <- x
   args$DEBUG <- DEBUG
 
 
-  if(is.null(y)) {
-    if(DEBUG) cat("\n[.describe.numeric] No y\n")
-    result <- do.call(feR:::.describe.feR_math.numeric,args)
+  if (is.null(y) | (show.general & !is.null(y))) {
+    if (is.null(y)) {
+      if (DEBUG) cat("\n[.describe.numeric] basic desc")
+      result.general <- do.call(feR:::.describe.feR_math.numeric, args)
+    }
+    else {
+      if (DEBUG) cat("\n[.describe.numeric] show.general requested\n")
+      args.general <- args
+      args.general$show.general <- FALSE
+      args.general$y <- NULL
+      result.general <- do.call(feR:::.describe.numeric, args.general)
+    }
   }
-  else {
-    result.temp <- tapply(x, y, function(xValue){
-      args$x = xValue
-      args$y = y
-      do.call(feR:::.describe.feR_math.numeric,args)
-      })
-    for(r in names(result.temp)){
+  if (!is.null(y)) {
+    result.temp <- tapply(x, y, function(xValue) {
+                                                    args$x <- xValue
+                                                    args$y <- y
+                                                    do.call(feR:::.describe.feR_math.numeric, args)
+                                                  })
+    for (r in names(result.temp)) {
       r.temp <- result.temp[[r]]
-      r.g <- data.frame(group=r)
-      r.g <- cbind(r.g,r.temp)
+      r.g <- data.frame(group = r)
+      r.g <- cbind(r.g, r.temp)
 
-      if(!exists("result")) {
-        result = r.g
+      if (!exists("result.groups")) {
+        result.groups <- r.g
         nor.test <- list(attr(r.temp, "nor.test"))
         p.norm <- list(attr(r.temp, "p.norm"))
         names(nor.test)[length(nor.test)] <- r
         names(p.norm)[length(p.norm)] <- r
         }
       else {
-        result <- rbind(result, r.g)
+        result.groups <- rbind(result.groups, r.g)
         nor.test <- append(nor.test, attr(r.temp, "nor.test"))
         p.norm <- append(p.norm, attr(r.temp, "p.norm"))
         names(nor.test)[length(nor.test)] <- r
         names(p.norm)[length(p.norm)] <- r
         }
-      
+
     }
-    class(result) <- c("feR_describe_numeric_list", class(result))
-    attr(result, "var.name") <- args[["xname"]]
-    attr(result, "y.name") <- args[["yname"]]
-    attr(result, "nor.test") <- nor.test
-    attr(result, "p.norm") <- p.norm
+
+    class(result.groups) <- c("feR_describe_numeric_list", class(result.groups))
+    
+    attr(result.groups, "nor.test") <- nor.test
+    attr(result.groups, "p.norm") <- p.norm
+    attr(result.groups, "y.name") <- args[["yname"]]
+
   }
-  attr(result,"decimals") <- decimals
+
+  if (exists("result.groups")) {
+    result <- result.groups
+    if (show.general & exists("result.general")) {
+      attr(result, "result.general") <- result.general
+    }
+  } else {
+    result <- result.general
+  }
+  attr(result, "decimals") <- decimals
+  attr(result, "show.general") <- show.general
+  attr(result, "show.markdown.division") <- show.markdown.division
+  attr(result, "markdown.division.prefix") <- markdown.division.prefix
+  attr(result, "var.name") <- args[["xname"]]
+
   return(result)
 }
 
@@ -167,69 +198,81 @@ describe <- function(x, ...,
 
 #' @export
 print.feR_describe_numeric <- function(obj, raw=FALSE) {
-  if(raw) {
-    print("RAW")
+  if (raw) {
+    message("RAW")
     print(knitr::kable(obj))
     return()
   }
-  decimals <- attr(obj,"decimals")
+  decimals <- attr(obj, "decimals")
 
-  for(v in names(obj)){
-    value <- obj[1,v]
-    if(is.numeric(value)) value <- round(value, digits = decimals)
-    value.char <- as.character(value)
+  for (v in names(obj)) {
+    value <- obj[1, v]
+    if (is.numeric(value)) value <- round(value, digits = decimals)
 
-    if(exists("stats")) stats <- c(stats,v)
+    if (exists("stats")) stats <- c(stats, v)
     else stats <- v
 
-    if(exists("values")) values <- c(values,round(value,digits = decimals))
-    else values <- round(value,digits = decimals)
+    if (exists("values")) values <- c(values,round(value, digits = decimals))
+    else values <- round(value, digits = decimals)
   }
 
-  x.final <- data.frame(stats=stats, value=values)
+  x.final <- data.frame(stats = stats, value = values)
 
-  print(knitr::kable(x.final, caption = attr(obj,"var.name")))
-  cat("\nNormality test:",attr(obj,"nor.test"),"; p.value:",attr(obj,"p.norm"),"\n")
+  print(knitr::kable(x.final, caption = attr(obj, "var.name")))
+  message("\nNormality test:", attr(obj, "nor.test"),
+      "; p.value:", attr(obj, "p.norm"), "\n")
 }
 
 
 #' @export
 print.feR_describe_numeric_list <- function(obj) {
 
-  nor.text = ""
-  decimals = attr(obj,"decimals")
+  decimals <- attr(obj, "decimals")
+  show.markdown.division <- attr(obj, "show.markdown.division")
+  markdown.division.prefix <- attr(obj, "markdown.division.prefix")
+
   rownames(obj) <- obj$group
   obj$group <- NULL
 
-    for(v in names(obj)){
-    value <- obj[,v]
-    if(is.numeric(value)) obj[,v] <- round(value, digits = decimals)
+
+  if (!is.null(attr(obj, "result.general"))) {
+    if (show.markdown.division) message("\n", markdown.division.prefix,
+                                    "Descripción general de ", attr(obj, "var.name"), "\n")
+    print(attr(obj, "result.general"))
+  }
+
+  for (v in names(obj)) {
+    value <- obj[, v]
+    if (is.numeric(value)) obj[, v] <- round(value, digits = decimals)
   }
 
   result <- t(obj)
-
-  print(knitr::kable(result, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"y.name"))))
-  for (g in names(attr(obj,"nor.test"))){
-    cat("\nNormality test ",g,":",attr(obj,"nor.test")[[g]],"; p.value:",attr(obj,"p.norm")[[g]],"\n")
+  if (show.markdown.division) message("\n", markdown.division.prefix,
+                                    "Descripción de **", attr(obj, "var.name"),
+                                    "** por grupos de **",
+                                    attr(obj, "y.name"), "**\n", sep = "")
+  print(knitr::kable(result, caption = paste(attr(obj, "var.name"), "vs", attr(obj, "y.name"))))
+  for (g in names(attr(obj, "nor.test"))) {
+    message("\nNormality test ", g, ":", attr(obj, "nor.test")[[g]],
+        "; p.value:", attr(obj, "p.norm")[[g]], "\n")
   }
-  
-
-
 }
 
 
 #' @export
 print.feR_describe_factor <- function(obj) {
 
-
-  if(!is.null(attr(obj,"y.name"))) print(knitr::kable(obj, caption = paste(attr(obj,"var.name"),"vs",attr(obj,"y.name"))))
-  else print(knitr::kable(obj, caption = attr(obj,"var.name")))
+  if(!is.null(attr(obj, "y.name"))) {
+    print(knitr::kable(obj, caption = paste(attr(obj, "var.name"), "vs", attr(obj, "y.name"))))
+  } else {
+    print(knitr::kable(obj, caption = attr(obj, "var.name")))
+  }
 }
 
 
 #' @export
 print.feR_describe_data_frame <- function(obj) {
-  for(x in obj){
+  for (x in obj) {
     print(x)
   }
 
