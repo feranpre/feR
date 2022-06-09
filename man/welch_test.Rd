@@ -9,7 +9,7 @@ welch_test(
   x.name = feR:::.var.name(deparse(substitute(x))),
   y = NULL,
   y.name = feR:::.var.name(deparse(substitute(y))),
-  p.sig = 0.95,
+  p.sig = 0.05,
   alternative = "two.sided",
   stop.on.error = FALSE,
   lang = "es",
