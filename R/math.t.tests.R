@@ -22,7 +22,7 @@
 welch_test <- function(x, x.name=feR:::.var.name(deparse(substitute(x))),
                          y=NULL, y.name = feR:::.var.name(deparse(substitute(y))),
                          p.sig=0.05, alternative="two.sided",
-                         stop.on.error = FALSE, lang = "es", decimals = 4) {
+                         stop.on.error = TRUE, lang = "es", decimals = 4) {
   ci <- 1 - p.sig
   tryCatch(feR:::.check.comp_means.parameters(x = x, y = y, ci = ci,
               alternative = alternative, lang = lang, method = "auto"),
@@ -53,12 +53,15 @@ welch_test <- function(x, x.name=feR:::.var.name(deparse(substitute(x))),
 #' @export
 t_test <- function(x, x.name=feR:::.var.name(deparse(substitute(x))),
                            y=NULL, y.name = feR:::.var.name(deparse(substitute(y)))
-                           ,ci=0.95, alternative="two.sided",
-                           stop.on.error = FALSE, lang = "es", decimals = 4){
-  # tryCatch(feR:::.check.comp_means.parameters(x=x,y=y,ci=ci,alternative=alternative,lang=lang, method="auto"), error = function(e) {
-  #   if(stop.on.error) stop(e)
-  #   else return(NA)
-  # })
+                           ,p.sig=0.05, alternative="two.sided",
+                           stop.on.error = FALSE, lang = "es", decimals = 4) {
+  ci <- 1 - p.sig
+  tryCatch(feR:::.check.comp_means.parameters(x = x, y = y, ci = ci, alternative = alternative,
+                                              lang = lang, method = "auto"),
+          error = function(e) {
+              if (stop.on.error) stop(e)
+              else return(NA)
+          })
 
   test <- tryCatch(t.test(x ~ y, conf.level = ci, var.equal = TRUE, alternative = alternative),
                     error = function(e) {

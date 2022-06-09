@@ -11,7 +11,7 @@ welch_test(
   y.name = feR:::.var.name(deparse(substitute(y))),
   p.sig = 0.05,
   alternative = "two.sided",
-  stop.on.error = FALSE,
+  stop.on.error = TRUE,
   lang = "es",
   decimals = 4
 )
