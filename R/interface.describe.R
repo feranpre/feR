@@ -6,7 +6,7 @@
 #'
 #' `describe()` give descriptive statistics about the vector/data.frame
 #' passed as argument.
-#' 
+#'
 #' If it is a vector it will discriminate between **numeric** and **factor**
 #' (it will even try to guess if a numeric variable is a factor) and will
 #' give the correct descriptive statistics.
@@ -63,6 +63,7 @@ describe <- function(x, ...,
 
   passed.args <- as.list(match.call()[-1])
   final.args <- as.list(modifyList(args, passed.args))
+
 
   if (!is.null(y)) final.args$y <- y
   if (guess.factor) final.args$x <- do.call(feR:::.guess.factor, final.args)
@@ -149,7 +150,7 @@ describe <- function(x, ...,
     }
 
     class(result.groups) <- c("feR_describe_numeric_list", class(result.groups))
-    
+
     attr(result.groups, "nor.test") <- nor.test
     attr(result.groups, "p.norm") <- p.norm
     attr(result.groups, "y.name") <- args[["y.name"]]
@@ -168,7 +169,7 @@ describe <- function(x, ...,
   attr(result, "show.general") <- show.general
   attr(result, "show.markdown.division") <- show.markdown.division
   attr(result, "markdown.division.prefix") <- markdown.division.prefix
-  attr(result, "var.name") <- args[["x.name"]]
+  attr(result, "x.name") <- args[["x.name"]]
 
   return(result)
 }

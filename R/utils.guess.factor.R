@@ -7,12 +7,11 @@
   args <- list(...)
 
   if(class(x) != "data.frame" & !is.factor(x)){
-    if(args[["guess.factor"]]) {
-      max.factor.cat <- args[["max.factor.cat"]]
+    if(guess.factor) {
       total.cat <- length(unique(x))
       length.limit <- (length(x)*.1)
 
-      if(DEBUG) cat("\n[.guess.factor] Guess factor ->",args[["guess.factor"]],
+      if(DEBUG) cat("\n[.guess.factor] Guess factor ->",guess.factor,
                     "\n max.factor =", max.factor.cat,
                     "\n total.cat =", total.cat,
                     "\n length.limit =", length.limit,

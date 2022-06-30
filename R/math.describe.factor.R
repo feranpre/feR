@@ -5,11 +5,11 @@
                                       decimals = 4,
                                       total.by.row = TRUE,
                                       total.by.column = FALSE,
-                                      DEBUG = FALSE) {
+                                      DEBUG = TRUE) {
   if(DEBUG) cat("\n[.describe.feR_math.factor] Called")
 
   args <- list(...)
-  var.name = args[["xname"]]
+  x.name = args[["x.name"]]
 
   if(class(x)!="factor") x <- factor(x)
 
@@ -22,7 +22,7 @@
     result$rel.freq.valid <- c(round(prop.table(table(x, useNA = "no"))*100,digits = decimals),NA)
   } else {
 
-    y.name <- args[["byname"]]
+    y.name <- args[["y.name"]]
     if(DEBUG) cat("\n[.describe.feR_math.factor] By",y.name)
 
 
@@ -35,7 +35,7 @@
 
 
     #............. CALCULATING PERCENTAGES BY ROW
-    if(total.y.row){
+    if(total.by.row){
       result_rel_freq.row <- data.frame(rbind(round(prop.table(t.n, margin = 1)*100,digits = decimals)))
       result_rel_freq_valid.row <- data.frame(rbind(round(prop.table(table(x, y, useNA = "no"), margin = 1)*100,digits = decimals)))
 
@@ -141,6 +141,6 @@
 
 
   class(result) <- c("feR_describe_factor",class(result))
-  attr(result,"var.name") <- var.name
+  attr(result,"x.name") <- x.name
   return(result)
 }

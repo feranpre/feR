@@ -1,10 +1,10 @@
 #' @export
 compare  <- function(x,y,...,
-                     xname=  feR:::.var.name(deparse(substitute(x))),
-                     yname =  feR:::.var.name(deparse(substitute(by))),
+                     x.name=  feR:::.var.name(deparse(substitute(x))),
+                     y.name =  feR:::.var.name(deparse(substitute(y))),
                      show.desc = T,
                      p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
-                     DEBUG=TRUE) {
+                     DEBUG=FALSE) {
 
   function.args <- formals(compare)
   function.args$... <- NULL
@@ -27,21 +27,17 @@ compare  <- function(x,y,...,
 
   args <- list(...)
   args$x <- x
-  args$by <- y
-  args$byname <- args[["yname"]]
+  args$y <- y
+  args$x.name <- args[["x.name"]]
+  args$y.name <- args[["y.name"]]
   args$p.sig <- p.sig
   args$DEBUG <- DEBUG
 
   total.cat <- length(levels(y))
   desc <- do.call(feR::describe, args)
-
-  is.normal = TRUE
-  for(v in desc) {
-    if(!attr(v,"is.normal")) {
-      is.normal = FALSE
-      break
-    }
-  }
+  is.normal = (sum(desc$p.norm.exact < p.sig)==0) #.. if any p.norm.exact is below p.sig we need non.parametric tests
+  print(desc)
+  print(is.normal)
 
   #--- test homocedasticity
   bart <- bartlett.test(x ~ y)
@@ -52,9 +48,9 @@ compare  <- function(x,y,...,
     if(is.normal) {
       if(DEBUG) cat("[.compare.numeric] Homocedasticity ->",is.var.equal,"\n")
       if(is.var.equal) result <- do.call(feR:::t_student, args)
-      else result <- feR:::welch_test(x, by = y)
+      else result <- feR:::welch_test(x, y = y)
     } else {
-      result <- feR::wilcoxon_test(x, by = y)
+      result <- feR::wilcoxon_test(x, y = y)
     }
   } else {
     if(is.normal & is.var.equal){

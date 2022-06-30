@@ -3,7 +3,7 @@ rm(list = ls())
 
 
 
-  data_ <- data.frame(age = rnorm(30, mean = 30, sd = 5),
+data_ <- data.frame(age = rnorm(30, mean = 30, sd = 5),
                     height = sample(x = 120:205, size = 30, replace = TRUE),
                     sex = sample(x = c("Male", "Female"), prob = c(.5, .5),
                           size = 30, replace = TRUE),
@@ -12,6 +12,9 @@ rm(list = ls())
                     health = sample(x = c("Bad", "Normal", "Excelent"),
                           prob = c(0.3, .3, .3), size = 30, replace = TRUE)
   )
+
+data_$age[data_$sex == "Male"] <- rnorm(sum(data_$sex == "Male"), mean = 30, sd = 5)
+data_$age[data_$sex == "Female"] <- rnorm(sum(data_$sex == "Female"), mean = 30, sd = 5)
 
 data_ <- rbind(data_, list(34, NA, NA, NA, NA))
 data_ <- rbind(data_, list(33, NA, "Male", NA, NA))
@@ -27,6 +30,7 @@ feR::describe(data_$age, x.name = "asf", y = data_$sex, DEBUG = FALSE)
 
 s <- feR::describe(data_$sex)
 feR::describe(data_$sex)
+feR::describe(data_$sex, y = data_$blond)
 feR::describe(data_$age, y = data_$sex, show.general = TRUE)
 
 feR::welch_test(data_$age, y = data_$sex, lang = "es")
