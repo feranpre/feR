@@ -38,8 +38,9 @@ feR::welch_test(data_$age, y = data_$sex, lang = "es")
 
 
 feR::t_test(data_$age, y = data_$sex)
-feR::compare(data_$age, y = data_$sex)
 
+feR::compare(data_$age, y = data_$sex)
+feR::compare(runif(34), y = data_$sex, show.desc = T)
 
 
 feR:::.check.comp_means.parameters()
