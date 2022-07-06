@@ -23,6 +23,11 @@ data_ <- rbind(data_, list(NA, NA, NA, "No", "Bad"))
 data_$empty <- rep(NA, nrow(data_))
 data_$health <- as.factor(data_$health)
 
+
+load("DATOS_PRUEBA/DATOS_REYNOSO.RData")
+
+
+
 c <- feR::describe(data_$age)
 feR::describe(data_$age)
 
@@ -40,7 +45,8 @@ feR::welch_test(data_$age, y = data_$sex, lang = "es")
 feR::t_test(data_$age, y = data_$sex)
 
 feR::compare(data_$age, y = data_$sex)
-feR::compare(runif(34), y = data_$sex, show.desc = T)
+
+c <- feR::compare(runif(34), y = data_$sex, show.desc = T)
 
 
 feR:::.check.comp_means.parameters()

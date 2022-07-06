@@ -14,8 +14,8 @@ print.feR.comp_means <- function(x){
   x$mean.diff.ci.low <- round(x$mean.diff.ci.low, decimals)
   x$mean.diff.ci.high <- round(x$mean.diff.ci.high, decimals)
 
-  if(!is.null(attr(x,"SHOW.DESCRIPTIVES")) && (attr(x,"SHOW.DESCRIPTIVES"))) lapply(attr(x,"DESCRIPTIVES"), print)
-  if(!is.null(attr(x,"SHOW.VARIANCE")) && (attr(x,"SHOW.VARIANCE"))) lapply(attr(x,"VARIANCE"), print)
+  if(!is.null(attr(x,"SHOW.DESCRIPTIVES")) && (attr(x,"SHOW.DESCRIPTIVES"))) print(attr(x,"DESCRIPTIVES"))
+  if(!is.null(attr(x,"SHOW.VARIANCE")) && (attr(x,"SHOW.VARIANCE"))) print(attr(x,"VARIANCE"))
 
   caption = ""
   cont = 1

@@ -2,7 +2,7 @@
 compare  <- function(x,y,...,
                      x.name=  feR:::.var.name(deparse(substitute(x))),
                      y.name =  feR:::.var.name(deparse(substitute(y))),
-                     show.desc = T,
+                     show.desc = T, show.var = T,
                      p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
                      DEBUG=FALSE) {
 
@@ -21,7 +21,7 @@ compare  <- function(x,y,...,
   UseMethod(".compare")
 }
 
-.compare.numeric <- function(x,y,...,p.sig = 0.05, DEBUG = F){
+.compare.numeric <- function(x,y,...,p.sig = 0.05, DEBUG = F, show.desc = T, show.var = T){
 
   if(class(y) != "factor") y <- factor(y)
 
@@ -36,8 +36,10 @@ compare  <- function(x,y,...,
   total.cat <- length(levels(y))
   desc <- do.call(feR::describe, args)
   is.normal = (sum(desc$p.norm.exact < p.sig)==0) #.. if any p.norm.exact is below p.sig we need non.parametric tests
-  print(desc)
-  print(is.normal)
+
+
+  # print(desc)
+  # print(is.normal)
 
   #--- test homocedasticity
   bart <- bartlett.test(x ~ y)
@@ -59,6 +61,21 @@ compare  <- function(x,y,...,
       result <- feR:::kruskal_test(x ~ y)
     }
   }
+
+  if(show.desc) {
+    attr(result,"SHOW.DESCRIPTIVES") <- TRUE
+    attr(result, "DESCRIPTIVES") <- desc
+  } else {
+    attr(result,"SHOW.DESCRIPTIVES") <- FALSE
+  }
+
+  if(show.var) {
+    attr(result,"SHOW.VARIANCE") <- TRUE
+    attr(result, "VARIANCE") <- bart
+  } else {
+    attr(result,"SHOW.VARIANCE") <- FALSE
+  }
+
 
   if(exists("result")) return(result)
   else return(NA)
