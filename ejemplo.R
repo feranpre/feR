@@ -43,12 +43,12 @@ load("DATOS_PRUEBA/DATOS_REYNOSO.RData")
 
 
 c <- feR::describe(data_$age)
-feR::describe(data_$age)
+feR::describe(data_$age, x.name = "ADAF")
 
 feR::describe(data_$age, x.name = "asf", y = data_$sex, DEBUG = FALSE)
 
 s <- feR::describe(data_$sex)
-feR::describe(data_$sex)
+feR::describe(data_, y = data_$blond)
 feR::describe(data_$sex, y = data_$blond)
 feR::describe(data_$age, y = data_$sex, show.general = TRUE)
 
@@ -58,7 +58,7 @@ feR::welch_test(data_$age, y = data_$sex, lang = "es")
 
 feR::t_test(data_$age, y = data_$sex)
 
-feR::compare(data_$age, y = data_$sex)
+feR::compare(data_, y = data_$sex)
 
 c <- feR::compare(runif(34), y = data_$sex, show.desc = T)
 
