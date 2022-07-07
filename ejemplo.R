@@ -1,3 +1,17 @@
+#
+# De momento comparaciones de 2 medias hechas
+#
+# FALTA:
+#  - Comparación de muestras apareadas
+#  - Calculo de homocedasticidad (comprobar qué puedo recuperar del viejo)
+#  - Comparación de proporciones
+#  - Comparación de más de dos muestras
+#
+#
+#
+#
+
+
 
 rm(list = ls())
 

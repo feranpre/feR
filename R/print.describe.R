@@ -23,7 +23,7 @@ print.feR_describe_numeric <- function(obj, raw=FALSE) {
 
   print(knitr::kable(x.final, caption = attr(obj, "x.name")))
   cat("\nNormality test:", attr(obj, "nor.test"),
-      "; p.value:", attr(obj, "p.norm"), "\n")
+      "; p.value:", attr(obj, "p.norm"), "\n", sep = "")
 }
 
 
@@ -40,7 +40,7 @@ print.feR_describe_numeric_list <- function(obj) {
 
   if (!is.null(attr(obj, "result.general"))) {
     if (show.markdown.division) cat("\n", markdown.division.prefix,
-                                    "Descripción general de ", attr(obj, "x.name"), "\n")
+                                    "Descripción general de ", attr(obj, "x.name"), "\n", sep = "")
     print(attr(obj, "result.general"))
   }
 

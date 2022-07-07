@@ -11,6 +11,8 @@
   args <- list(...)
   x.name = args[["x.name"]]
 
+
+
   if(class(x)!="factor") x <- factor(x)
 
   if(is.null(y)) {
@@ -21,8 +23,9 @@
     result$rel.freq <- round(prop.table(t.n)*100,digits = decimals)
     result$rel.freq.valid <- c(round(prop.table(table(x, useNA = "no"))*100,digits = decimals),NA)
   } else {
-
     y.name <- args[["y.name"]]
+
+
     if(DEBUG) cat("\n[.describe.feR_math.factor] By",y.name)
 
 
@@ -30,8 +33,17 @@
     t.n <- table(x, y, useNA = "always")
 
     result_n <- data.frame(rbind(t.n))
-    rownames(result_n) <- c(paste0(levels(x),"_n"),"NA_n")
-    colnames(result_n) <- c(levels(y),"NA")
+    categorias.x <- levels(x)
+    if(length(categorias.x) == 0) categorias.x <- c("NA")
+    else categorias.x <- c(categorias.x, "NA")
+
+    categorias.y <- levels(y)
+    if(length(categorias.y) == 0) categorias.y <- c("NA")
+    else categorias.y <- c(categorias.y, "NA")
+
+
+    rownames(result_n) <- paste0(categorias.x,"_n")
+    colnames(result_n) <- categorias.y
 
 
     #............. CALCULATING PERCENTAGES BY ROW
@@ -39,8 +51,9 @@
       result_rel_freq.row <- data.frame(rbind(round(prop.table(t.n, margin = 1)*100,digits = decimals)))
       result_rel_freq_valid.row <- data.frame(rbind(round(prop.table(table(x, y, useNA = "no"), margin = 1)*100,digits = decimals)))
 
-      colnames(result_rel_freq.row) <- c(levels(y),"NA")
-      rownames(result_rel_freq.row) <- c(paste0(levels(x),"_rel.freq.row"),"NA_rel.freq.row")
+
+      colnames(result_rel_freq.row) <- categorias.y
+      rownames(result_rel_freq.row) <- paste0(categorias.x,"_rel.freq.row")
 
       result_rel_freq.row$total.row <- rowSums(result_rel_freq.row)
 
@@ -48,8 +61,8 @@
       result_rel_freq_valid.row <- rbind(result_rel_freq_valid.row,rep(NA,ncol(result_rel_freq_valid.row)))
       result_rel_freq_valid.row <- cbind(result_rel_freq_valid.row,rep(NA,nrow(result_rel_freq_valid.row)))
 
-      names(result_rel_freq_valid.row) <- c(levels(y),"NA")
-      rownames(result_rel_freq_valid.row) <- c(paste0(levels(x),"_rel.freq.valid.row"),"NA_rel.freq.valid.row")
+      names(result_rel_freq_valid.row) <- categorias.y
+      rownames(result_rel_freq_valid.row) <- paste0(categorias.x,"_rel.freq.valid.row")
 
       result_rel_freq_valid.row$total.row <- rowSums(result_rel_freq_valid.row)
 
@@ -68,8 +81,8 @@
     #............. CALCULATING PERCENTAGES BY COLUMN
     if(total.by.column){
       result_rel_freq.column <- data.frame(rbind(round(prop.table(t.n, margin = 2)*100,digits = decimals)))
-      colnames(result_rel_freq.column) <- c(levels(y),"NA")
-      rownames(result_rel_freq.column) <- c(paste0(levels(x),"_rel.freq.column"),"NA_rel.freq.column")
+      colnames(result_rel_freq.column) <- categorias.y
+      rownames(result_rel_freq.column) <- paste0(categorias.x,"_rel.freq.column")
 
       result_rel_freq.column <- rbind(result_rel_freq.column, colSums(result_rel_freq.column, na.rm = TRUE))
       rownames(result_rel_freq.column)[nrow(result_rel_freq.column)] <- "total.column.rel.freq"
@@ -79,8 +92,8 @@
       result_rel_freq_valid.column <- rbind(result_rel_freq_valid.column,rep(NA,ncol(result_rel_freq_valid.column)))
       result_rel_freq_valid.column <- cbind(result_rel_freq_valid.column,rep(NA,nrow(result_rel_freq_valid.column)))
 
-      colnames(result_rel_freq_valid.column) <- c(levels(y),"NA")
-      rownames(result_rel_freq_valid.column) <- paste0(c(levels(x),"NA"),"_rel.freq.valid.column")
+      colnames(result_rel_freq_valid.column) <- categorias.y
+      rownames(result_rel_freq_valid.column) <- paste0(categorias.x,"_rel.freq.valid.column")
 
       result_rel_freq_valid.column <- rbind(result_rel_freq_valid.column, colSums(result_rel_freq_valid.column, na.rm = TRUE))
       rownames(result_rel_freq_valid.column)[nrow(result_rel_freq_valid.column)] <- "total.column.rel.freq.valid"

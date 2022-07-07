@@ -72,6 +72,8 @@ describe <- function(x, ...,
 
 
 .describe <- function(x, ..., DEBUG = FALSE, show.general = TRUE) {
+  if(is.character(x)) x <- factor(x)
+  if(is.logical(x)) x <- factor(x)
   UseMethod(".describe", x)
 }
 
@@ -92,6 +94,13 @@ describe <- function(x, ...,
   return(results)
 }
 
+.describe.default <- function(x, ..., y = NULL, decimals = 4,
+                              show.general = TRUE,
+                              show.markdown.division = TRUE,
+                              markdown.division.prefix = "##",
+                              DEBUG = FALSE) {
+  return(data.frame(description = "Not possible"))
+}
 
 
 
