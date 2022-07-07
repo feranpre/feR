@@ -7,6 +7,8 @@ print.feR_describe_numeric <- function(obj, raw=FALSE) {
     return()
   }
   decimals <- attr(obj, "decimals")
+  show.markdown.division <- attr(obj, "show.markdown.division")
+  markdown.division.prefix <- attr(obj, "markdown.division.prefix")
 
   for (v in names(obj)) {
     value <- obj[1, v]
@@ -21,9 +23,17 @@ print.feR_describe_numeric <- function(obj, raw=FALSE) {
 
   x.final <- data.frame(stats = stats, value = values)
 
+  if (show.markdown.division) cat("\n", markdown.division.prefix,
+                                  "Descripción de **", attr(obj, "x.name"),
+                                  "**\n", sep = "")
   print(knitr::kable(x.final, caption = attr(obj, "x.name")))
+
+  p.val <- round(attr(obj, "p.norm"),digits = (decimals+1))
+  if(p.val == 0) p.val <- paste0("<0.",rep(0,decimals),1)
+  else p.val <- round(attr(obj, "p.norm"),digits = decimals)
+
   cat("\nNormality test:", attr(obj, "nor.test"),
-      "; p.value:", attr(obj, "p.norm"), "\n", sep = "")
+      "; p.value:", p.val, "\n", sep = "")
 }
 
 
@@ -50,24 +60,44 @@ print.feR_describe_numeric_list <- function(obj) {
   }
 
   result <- t(obj)
-  if (show.markdown.division) cat("\n", markdown.division.prefix,
+  if (show.markdown.division) cat("\n",markdown.division.prefix,
                                     "Descripción de **", attr(obj, "x.name"),
                                     "** por grupos de **",
                                     attr(obj, "y.name"), "**\n", sep = "")
   print(knitr::kable(result, caption = paste(attr(obj, "x.name"), "vs", attr(obj, "y.name"))))
   for (g in names(attr(obj, "nor.test"))) {
+    p.val <- round(attr(obj, "p.norm")[[g]],digits = (decimals+1))
+    if(p.val == 0) p.val <- paste0("<0.",rep(0,decimals),1)
+    else p.val <- round(attr(obj, "p.norm")[[g]],digits = decimals)
     cat("\nNormality test ", g, ":", attr(obj, "nor.test")[[g]],
-        "; p.value:", attr(obj, "p.norm")[[g]], "\n")
+        "; p.value:", p.val, "\n")
   }
 }
 
 
 #' @export
 print.feR_describe_factor <- function(obj) {
+  decimals <- attr(obj, "decimals")
+  show.markdown.division <- attr(obj, "show.markdown.division")
+  markdown.division.prefix <- attr(obj, "markdown.division.prefix")
+
+  n.rows <- rownames(obj)[grepl("_n",rownames(obj))]
+  perc.rows <- rownames(obj)[grepl("_percent",rownames(obj))]
 
   if(!is.null(attr(obj, "y.name"))) {
-    print(knitr::kable(obj, caption = paste(attr(obj, "x.name"), "vs", attr(obj, "y.name"))))
+    result <- obj[n.rows,]
+    per.df <- obj[perc.rows,]
+    for(c in names(result)) {
+      result[,c] <- paste0(result[,c],"(",round(per.df[,c],digits=decimals),"%)")
+    }
+    obj <- result
+
+
+    titulo <- paste(attr(obj, "x.name"), "vs", attr(obj, "y.name"))
+    if (show.markdown.division) cat("\n",markdown.division.prefix,titulo,"\n",sep="")
+    print(knitr::kable(obj, caption = titulo))
   } else {
+    if (show.markdown.division) cat("\n",markdown.division.prefix,attr(obj, "x.name"),"\n",sep="")
     print(knitr::kable(obj, caption = attr(obj, "x.name")))
   }
 }

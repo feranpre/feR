@@ -44,6 +44,7 @@ describe <- function(x, ...,
                      #----------------------- factors
                      total.by.row = TRUE,
                      total.by.column = FALSE,
+                     show.na = FALSE,
 
                      #----------------------- printing options
                      show.general = TRUE,
@@ -78,9 +79,16 @@ describe <- function(x, ...,
 }
 
 
-.describe.data.frame <- function(x, ...) {
+.describe.data.frame <- function(x, ..., decimals = 4,
+                                 show.general = TRUE,
+                                 show.markdown.division = TRUE,
+                                 markdown.division.prefix = "##") {
 
   args <- list(...)
+  args$decimals = decimals
+  args$show.general = show.general
+  args$show.markdown.division = show.markdown.division
+  args$markdown.division.prefix = markdown.division.prefix
   results <- list()
 
   for (var.name in names(x)) {
@@ -90,6 +98,12 @@ describe <- function(x, ...,
     results[[var.name]] <- var
 
   }
+
+  attr(results, "decimals") <- decimals
+  attr(results, "show.general") <- show.general
+  attr(results, "show.markdown.division") <- show.markdown.division
+  attr(results, "markdown.division.prefix") <- markdown.division.prefix
+  attr(results, "x.name") <- args[["x.name"]]
   class(results) <- c("feR_describe_data_frame", class(results))
   return(results)
 }
@@ -187,9 +201,11 @@ describe <- function(x, ...,
 
 #' @export
 .describe.factor <- function(x,..., y = NULL,
-                             # decimals = 4,
-                             # total.by.row = TRUE,
-                             # total.by.column = FALSE,
+                             decimals = 4,
+                             total.by.row = TRUE,
+                             total.by.column = FALSE,
+                             show.markdown.division = TRUE,
+                             markdown.division.prefix = "##",
                              DEBUG = FALSE) {
   if(DEBUG) cat("\n[.describe.factor] Called\n")
 
@@ -199,6 +215,13 @@ describe <- function(x, ...,
   if(!is.null(y)) args$y <- y
   result <- do.call(feR:::.describe.feR_math.factor, args)
 
+  attr(result, "decimals") <- decimals
+  attr(result, "show.markdown.division") <- show.markdown.division
+  attr(result, "markdown.division.prefix") <- markdown.division.prefix
+  attr(result, "x.name") <- args[["x.name"]]
+
+  if(!is.null(y)) attr(result, "y.name") <- args[["y.name"]]
+  class(result) <- c("feR_describe_factor",class(result))
 
   return(result)
 

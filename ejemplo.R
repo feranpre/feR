@@ -41,7 +41,7 @@ data_$health <- as.factor(data_$health)
 load("DATOS_PRUEBA/DATOS_REYNOSO.RData")
 
 
-
+feR::describe(data_$empty, show.na = FALSE)
 c <- feR::describe(data_$age)
 feR::describe(data_$age, x.name = "ADAF")
 
