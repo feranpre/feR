@@ -97,10 +97,10 @@ print.feR_describe_factor <- function(obj) {
 
 
     titulo <- paste(attr(obj, "x.name"), "vs", attr(obj, "y.name"))
-    if (show.markdown.division) cat("\n",markdown.division.prefix,titulo,"\n",sep="")
+    if (show.markdown.division) cat("\n",markdown.division.prefix," ",titulo,"\n",sep="")
     print(knitr::kable(obj, caption = titulo))
   } else {
-    if (show.markdown.division) cat("\n",markdown.division.prefix,attr(obj, "x.name"),"\n",sep="")
+    if (show.markdown.division) cat("\n",markdown.division.prefix," ",attr(obj, "x.name"),"\n",sep="")
     print(knitr::kable(obj, caption = attr(obj, "x.name")))
   }
 }
