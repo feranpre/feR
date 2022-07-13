@@ -4,7 +4,7 @@
 #' @export
 print.feR.comp_means <- function(x){
   # if(class(x) == "data.frame")
-  decimals = attr(x,"DECIMALS")
+  decimals = attr(x,"decimals")
   x$stat.value <- round(x$stat.value,decimals)
   x$stat.ci.low <- round(x$stat.ci.low,decimals)
   x$stat.ci.high <- round(x$stat.ci.high,decimals)
@@ -13,17 +13,21 @@ print.feR.comp_means <- function(x){
   x$mean.diff <- round(x$mean.diff, decimals)
   x$mean.diff.ci.low <- round(x$mean.diff.ci.low, decimals)
   x$mean.diff.ci.high <- round(x$mean.diff.ci.high, decimals)
+  x$var.name <- attr(x,"x.name")
+  x$group.var <- attr(x,"y.name")
 
   if(!is.null(attr(x,"SHOW.DESCRIPTIVES")) && (attr(x,"SHOW.DESCRIPTIVES"))) print(attr(x,"DESCRIPTIVES"))
   if(!is.null(attr(x,"SHOW.VARIANCE")) && (attr(x,"SHOW.VARIANCE"))) print(attr(x,"VARIANCE"))
 
   caption = ""
+
   cont = 1
   for (vn in unique(x$var.name)) {
     if (caption == "") caption = vn
     else caption <- paste(caption, ifelse(cont == length(unique(x$var.name)),"&",","), vn)
     cont = cont + 1
   }
+
   caption <- paste(caption, "by")
   cont = 1
   for (vn in unique(x$group.var)) {

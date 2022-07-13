@@ -103,6 +103,6 @@ t_test <- function(x, x.name=feR:::.var.name(deparse(substitute(x))),
   x.test$mean.diff.ci.high <- test$conf.int[[2]]
 
   class(x.test) <- c("feR.comp_means", "data.frame")
-  attr(x.test, "DECIMALS") <- decimals
+  attr(x.test, "decimals") <- decimals
   return(x.test)
 }

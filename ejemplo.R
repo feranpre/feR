@@ -56,7 +56,7 @@ feR::welch_test(data_$age, y = data_$sex, lang = "es")
 
 
 
-feR::t_test(data_$age, y = data_$sex)
+c <- feR::compare(data_$age, y = data_$sex)
 
 feR::compare(data_, y = data_$sex)
 

@@ -4,6 +4,7 @@ compare  <- function(x,y,...,
                      y.name =  feR:::.var.name(deparse(substitute(y))),
                      show.desc = T, show.var = T,
                      p.sig = 0.05, p.sig.small = 0.01, p.sig.very.small = 0.001,
+                     decimals = 2,
                      DEBUG=FALSE) {
 
   function.args <- formals(compare)
@@ -21,7 +22,8 @@ compare  <- function(x,y,...,
   UseMethod(".compare")
 }
 
-.compare.numeric <- function(x,y,...,p.sig = 0.05, DEBUG = F, show.desc = T, show.var = T){
+.compare.numeric <- function(x,y,...,p.sig = 0.05, DEBUG = F, show.desc = T, show.var = T,
+                             decimals = 2){
 
   if(class(y) != "factor") y <- factor(y)
 
@@ -76,6 +78,7 @@ compare  <- function(x,y,...,
     attr(result,"SHOW.VARIANCE") <- FALSE
   }
 
+  attr(result,"decimals") <- decimals
 
   if(exists("result")) return(result)
   else return(NA)
