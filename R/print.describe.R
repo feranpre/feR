@@ -29,7 +29,7 @@ print.feR_describe_numeric <- function(obj, raw=FALSE) {
   print(knitr::kable(x.final, caption = attr(obj, "x.name")))
 
   cat("\n decimals ",decimals,"\n")
-  print(toString(obj))
+  # print(toString(obj))
   print(attr(obj, "p.norm"))
   p.val <- round(attr(obj, "p.norm"),digits = (decimals+1))
   if(p.val == 0) p.val <- paste0("<0.",rep(0,decimals),1)

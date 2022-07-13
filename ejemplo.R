@@ -42,12 +42,12 @@ load("DATOS_PRUEBA/DATOS_REYNOSO.RData")
 
 
 feR::describe(data_$empty, show.na = FALSE)
-c <- feR::describe(data_$age)
+feR::describe(data_$age)
 feR::describe(data_$age, x.name = "ADAF")
 
 feR::describe(data_$age, x.name = "asf", y = data_$sex, DEBUG = FALSE)
 
-s <- feR::describe(data_$sex)
+feR::describe(data_$sex)
 feR::describe(data_, y = data_$blond)
 feR::describe(data_$sex, y = data_$blond)
 feR::describe(data_$age, y = data_$sex, show.general = TRUE)
