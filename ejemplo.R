@@ -37,8 +37,13 @@ data_ <- rbind(data_, list(NA, NA, NA, "No", "Bad"))
 data_$empty <- rep(NA, nrow(data_))
 data_$health <- as.factor(data_$health)
 
+data_$health_V1 <- NA
+data_$health_V2 <- NA
+data_$health_V3 <- NA
 
-load("DATOS_PRUEBA/DATOS_REYNOSO.RData")
+
+feR::fin
+
 
 
 feR::describe(data_$empty, show.na = FALSE)
@@ -128,3 +133,4 @@ if (PRUEBAS.CALL){
   prueba.call(data_, by = c("sex","BLOND"), c("age", "HEIGHT"), DEBUG.CALL=TRUE, DEBUG = TRUE)
   prueba.call(data_, by = c("sex","BLOND"), "age", "HEIGHT", DEBUG.CALL=TRUE, DEBUG = TRUE)
 }
+
